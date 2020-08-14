@@ -23,6 +23,8 @@ org: madawei2699
 provider:
   name: aws
   runtime: python3.7
+  region: us-east-1
+  memorySize: 512
 
 # you can overwrite defaults here
 #  stage: dev
@@ -58,8 +60,22 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
+  invest:
+    handler: handler.invest
+    layers:
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - schedule: cron(0 8 * * ? *)
+      - sns: invest
+    environment:
+      TUSHARE_API_TOKEN: ${env:TUSHARE_API_TOKEN}
+    package:
+      include: # Specify the directories and files which should be included in the deployment package for this specific function.
+        - fund.txt
+        - handler.py
+      # exclude: # Specify the directories and files which should be excluded in the deployment package for this specific function.
+      #   - .git/**
+      #   - .travis.yml
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -111,3 +127,13 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerImage: 9fevrier/python-ta-lib
+    dockerizePip: true
+    zip: true
+    layer: true
