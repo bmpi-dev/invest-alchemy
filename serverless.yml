@@ -25,6 +25,7 @@ provider:
   runtime: python3.7
   region: us-east-1
   memorySize: 512
+  timeout: 20
 
 # you can overwrite defaults here
 #  stage: dev
@@ -64,9 +65,9 @@ functions:
     handler: handler.invest
     layers:
       - { Ref: PythonRequirementsLambdaLayer }
-    events:
-      - schedule: cron(0 8 * * ? *)
-      - sns: invest
+    # events:
+      # - schedule: cron(0 8 * * ? *)
+      # - sns: invest
     environment:
       TUSHARE_API_TOKEN: ${env:TUSHARE_API_TOKEN}
     package:
@@ -133,7 +134,6 @@ plugins:
 
 custom:
   pythonRequirements:
-    dockerImage: 9fevrier/python-ta-lib
     dockerizePip: true
     zip: true
     layer: true

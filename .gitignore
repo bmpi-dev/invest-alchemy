@@ -7,7 +7,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/
 lib64/
 parts/
 sdist/
@@ -22,3 +22,5 @@ var/
 .env
 .ipynb_checkpoints
 node_modules/
+.requirements.zip
+.DS_Store
