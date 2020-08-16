@@ -1,3 +1,0 @@
-numpy==1.19.1
-tushare==1.2.60
-pandas==1.1.0
