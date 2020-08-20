@@ -6,7 +6,8 @@
 
 ```
 mv .env_sample .env # must set .env
-docker build -t invest-alchemy .
+docker build -t invest-alchemy/core .
+docker run -t -i -e TUSHARE_API_TOKEN=xxxx invest-alchemy/core
 ```
 
 #### push docker to AWS ECR
