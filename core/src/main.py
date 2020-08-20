@@ -20,8 +20,11 @@ hold_codes = []
 empty_codes = []
 
 def run(code, name):
+    adj = pro.fund_adj(ts_code=code, start_date=start, end_date=end).sort_index(ascending=False)
     data = pro.fund_daily(ts_code=code, start_date=start, end_date=end).sort_index(ascending=False)
-    close_price = np.array(data['close'])
+    data = data.merge(adj, on='trade_date')
+    qfq_close_price = data['close'].multiply(data['adj_factor']) / data['adj_factor'].iloc[-1]
+    close_price = np.array(qfq_close_price)
     time = np.array(data['trade_date'])
     short_ma = np.round(ta.MA(close_price, short_term), 3)
     long_ma = np.round(ta.MA(close_price, long_term), 3)
