@@ -1,5 +1,9 @@
 # Invest Alchemy Core Service
 
+## Infrastructure
+
+[serverless-jobs-using-fargate](https://github.com/z0ph/serverless-jobs-using-fargate)
+
 ## How to start
 
 ### Docker
