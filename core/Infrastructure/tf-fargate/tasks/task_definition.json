@@ -15,7 +15,7 @@
       "command": null,
       "linuxParameters": null,
       "cpu": 0,
-      "environment": [],
+      "environment": [{"name": "TUSHARE_API_TOKEN", "value": "${TUSHARE_API_TOKEN}"}],
       "resourceRequirements": null,
       "ulimits": null,
       "dnsServers": null,

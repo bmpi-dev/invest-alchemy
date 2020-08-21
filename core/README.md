@@ -6,10 +6,16 @@
 
 ## How to start
 
-### Docker
+### env
 
 ```
 mv .env_sample .env # must set .env
+source .env
+```
+
+### Docker
+
+```
 docker build -t invest-alchemy/core .
 docker run -t -i -e TUSHARE_API_TOKEN=xxxx invest-alchemy/core
 ```

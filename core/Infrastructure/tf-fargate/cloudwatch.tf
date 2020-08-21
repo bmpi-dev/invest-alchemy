@@ -8,7 +8,7 @@ resource "aws_cloudwatch_event_target" "cw_event_target" {
   target_id   = "${var.project}_event_target_${var.env}"
   arn         = "${aws_ecs_cluster.ecs_cluster.arn}"
   rule        = "${aws_cloudwatch_event_rule.cw_run_task.name}"
-  role_arn    = "${var.ecs_event_role}"
+  role_arn    = "${aws_iam_role.ecs_events_role.arn}"
 
   ecs_target {
       launch_type           = "FARGATE"

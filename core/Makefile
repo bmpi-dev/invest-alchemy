@@ -47,6 +47,7 @@ build-docker:
 ################ Terraform #####################
 
 init:
+	@. .env
 	@terraform init \
 		-backend-config="bucket=$(S3_BUCKET)" \
 		-backend-config="key=$(PROJECT)/terraform.tfstate" \

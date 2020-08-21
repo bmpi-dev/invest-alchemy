@@ -24,3 +24,5 @@ var/
 node_modules/
 .requirements.zip
 .DS_Store
+
+.terraform/

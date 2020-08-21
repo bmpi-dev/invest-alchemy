@@ -24,12 +24,12 @@ variable "artifacts_bucket" {
 }
 
 variable "ecs_event_role" {
-  default     = "ecs_events_role"
+  default     = "XXX"
   description = "IAM Role used for CloudWatch"
 }
 
 variable "ecs_taskexec_role" {
-  default     = "ecs_service_role"
+  default     = "XXX"
   description = "IAM Role used for Task Execution"
 }
 
@@ -46,7 +46,7 @@ variable "security_groups_ids" {
 }
 
 variable "schedule" {
-  default     = "cron(0 24 * * ? *)"
+  default     = "cron(0 0 * * ? *)"
   description = "Schedule for your job"
 }
 
@@ -68,6 +68,11 @@ variable "ecs_memory" {
 variable "ecr_image_uri" {
   default     = "745121664662.dkr.ecr.us-east-1.amazonaws.com/invest-alchemy/core:latest"
   description = "URI of the Docker Image in ECR"
+}
+
+variable "TUSHARE_API_TOKEN" {
+  description = "Tushare API Token from .env"
+  type        = string
 }
 
 
