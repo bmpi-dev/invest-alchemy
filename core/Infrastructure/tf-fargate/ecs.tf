@@ -6,6 +6,13 @@ resource "aws_ecs_cluster" "ecs_cluster" {
     Project     = "${var.project}"
     Environment = "${var.env}"
   }
+
+  capacity_providers = ["FARGATE_SPOT"]
+
+  default_capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"
+    weight            = "100"
+  }
 }
 
 data "template_file" "task" {
