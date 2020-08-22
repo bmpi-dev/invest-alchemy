@@ -35,7 +35,7 @@ variable "ecs_taskexec_role" {
 
 variable "subnets_ids" {
   type        = "list"
-  default     = ["subnet-04db906e842d250e"]
+  default     = ["XXX"]
   description = "Subnets IDs used for Fargate Containers"
 }
 

@@ -31,3 +31,7 @@ docker tag invest-alchemy/core:latest 745121664662.dkr.ecr.us-east-1.amazonaws.c
 
 docker push 745121664662.dkr.ecr.us-east-1.amazonaws.com/invest-alchemy/core:latest # push this image to your newly created AWS repository
 ```
+
+## Workflow
+
+change src code -> make build-docker -> make apply
