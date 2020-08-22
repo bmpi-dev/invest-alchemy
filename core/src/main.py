@@ -8,14 +8,18 @@ import sys
 from datetime import datetime, timedelta
 import boto3
 
+AWS_REGION = 'us-east-1'
 S3_BUCKET_NAME = 'i365.tech'
 S3_DOUBLE_MA_BASE_DIR = 'invest-alchemy/data/strategy/double-ma/'
 OUTPUT_FILE = datetime.today().strftime('%Y%m%d') + '.txt'
+SNS_TOPIC = 'arn:aws:sns:us-east-1:745121664662:trade-signal-topic'
+
+TODAY_STR = datetime.today().strftime('%Y%m%d')
 
 pro = ts.pro_api(os.environ['TUSHARE_API_TOKEN'])
 
 start = (datetime.today() - timedelta(days=150)).strftime('%Y%m%d')
-end = datetime.today().strftime('%Y%m%d')
+end = TODAY_STR
 
 short_term = 11
 long_term = 22
@@ -29,17 +33,21 @@ class Logger(object):
     def __init__(self):
         self.terminal = sys.stdout
         self.log = open('/tmp/' + OUTPUT_FILE, "w")
+        self.is_open = True
 
     def open(self):
         self.terminal = sys.stdout
         self.log = open('/tmp/' + OUTPUT_FILE, "w")
+        self.is_open = True
 
     def close(self):
         self.log.close()
+        self.is_open = False
 
     def write(self, message):
         self.terminal.write(message)
-        self.log.write(message)
+        if self.is_open:
+            self.log.write(message)
 
     def flush(self):
         #this flush method is needed for python 3 compatibility.
@@ -98,13 +106,27 @@ def upload_file(file_name, bucket, object_name=None):
         object_name = file_name
 
     # Upload the file
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client('s3', region_name=AWS_REGION)
     try:
         response = s3_client.upload_file(file_name, bucket, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'text/plain'})
     except ClientError as e:
         logging.error(e)
         return False
     return True
+
+def send_sns(file_name):
+    """Send message by sns
+    Amazon SNS is designed to distribute notifications, If you wish to send formatted emails, consider using Amazon Simple Email Service (SES), which improves email deliverability.
+    """
+    subject = 'Double MA Strategy Trade Signal: ' + TODAY_STR + ' - A Share'
+    with open(file_name, 'r') as file:
+        message = file.read()
+        sns_client = boto3.client('sns', region_name=AWS_REGION)
+        sns_client.publish(
+            TopicArn=SNS_TOPIC,
+            Message=message,
+            Subject=subject,
+        )
 
 def make_trade_signal():
     with open("fund.txt", "r") as f:
@@ -131,4 +153,9 @@ def make_trade_signal():
 if __name__ == "__main__":
     make_trade_signal()
     sys.stdout.close()
+    print('\nstart upload output file to s3...\n')
     upload_file('/tmp/' + OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR + OUTPUT_FILE)
+    print('end upload output file to s3\n')
+    print('start send sns...\n')
+    send_sns('/tmp/' + OUTPUT_FILE)
+    print('end send sns...\n')
