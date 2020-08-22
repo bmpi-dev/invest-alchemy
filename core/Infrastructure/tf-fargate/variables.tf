@@ -66,7 +66,7 @@ variable "ecs_memory" {
 }
 
 variable "ecr_image_uri" {
-  default     = "745121664662.dkr.ecr.us-east-1.amazonaws.com/invest-alchemy/core:latest"
+  default     = "745121664662.dkr.ecr.us-east-1.amazonaws.com/invest-alchemy-core-ecr-dev:latest"
   description = "URI of the Docker Image in ECR"
 }
 

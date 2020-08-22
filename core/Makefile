@@ -24,7 +24,7 @@ DESCRIPTION ?= invest alchemy core service
 S3_BUCKET ?= invest-alchemy
 AWS_REGION ?= us-east-1
 ENV ?= dev
-ECR := 745121664662.dkr.ecr.us-east-1.amazonaws.com/invest-alchemy/core # ECR Repository Example: 123456789012.dkr.ecr.eu-west-1.amazonaws.com/{project_name}-ecr-{env}
+ECR := 745121664662.dkr.ecr.us-east-1.amazonaws.com/invest-alchemy-core-ecr-dev # ECR Repository Example: 123456789012.dkr.ecr.eu-west-1.amazonaws.com/{project_name}-ecr-{env}
 ################################################
 
 ################ Artifacts Bucket ##############

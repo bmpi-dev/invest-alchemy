@@ -22,3 +22,12 @@ resource "aws_cloudwatch_event_target" "cw_event_target" {
       }
   }
 }
+
+resource "aws_cloudwatch_log_group" "cw_run_task_log_group" {
+  name = "/ecs/${var.project}-fargate-task-definition"
+
+  tags = {
+    Environment = "${var.env}"
+    Application = "${var.project}"
+  }
+}
