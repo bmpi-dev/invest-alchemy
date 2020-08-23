@@ -108,7 +108,7 @@ def upload_file(file_name, bucket, object_name=None):
     # Upload the file
     s3_client = boto3.client('s3', region_name=AWS_REGION)
     try:
-        response = s3_client.upload_file(file_name, bucket, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'text/plain'})
+        response = s3_client.upload_file(file_name, bucket, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'text/plain; charset=utf-8'})
     except ClientError as e:
         logging.error(e)
         return False
