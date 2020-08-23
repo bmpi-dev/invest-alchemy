@@ -1,0 +1,40 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "Invest Alchemy Web",
+  "main": "index.js",
+  "engines": {
+    "node": ">=8.10"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "deploy": "npm run build && sls deploy",
+    "start-server": "npm run build && node app.js",
+    "start-sls": "npm run build && sls offline start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@nuxt/http": "^0.1.2",
+    "axios": "^0.18.0",
+    "iview": "^3.5.4",
+    "less": "^3.12.2",
+    "less-loader": "^6.2.0",
+    "node-sass": "^4.14.1",
+    "nuxt": "^2.6.3",
+    "nuxt-start": "^2.6.3",
+    "sass-loader": "^9.0.3",
+    "serverless-apigw-binary": "^0.4.4",
+    "serverless-http": "^2.0.1"
+  },
+  "devDependencies": {
+    "@nuxtjs/style-resources": "^1.0.0",
+    "serverless-domain-manager": "^3.2.1",
+    "serverless-offline": "^5.12.0"
+  }
+}
