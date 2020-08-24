@@ -13,7 +13,7 @@
     "start": "nuxt start",
     "generate": "nuxt generate",
     "deploy": "npm run build && sls deploy",
-    "start-server": "npm run build && node app.js",
+    "start-server": "npm run build && npm run start",
     "start-sls": "npm run build && sls offline start"
   },
   "keywords": [],
