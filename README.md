@@ -1,5 +1,7 @@
 # Invest Alchemy
 
+相关文章: [《Serverless应用开发小记》](https://www.bmpi.dev/dev/guide-to-serverless/)
+
 ## How to start
 
 ```
