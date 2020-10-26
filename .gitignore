@@ -29,3 +29,5 @@ node_modules/
 
 .metals/
 .vscode/
+
+.idea
