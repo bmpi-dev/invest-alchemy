@@ -61,7 +61,11 @@ def run(code, name):
     adj = pro.fund_adj(ts_code=code, start_date=start, end_date=end).sort_index(ascending=False)
     data = pro.fund_daily(ts_code=code, start_date=start, end_date=end).sort_index(ascending=False)
     data = data.merge(adj, on='trade_date')
-    qfq_close_price = data['close'].multiply(data['adj_factor']) / data['adj_factor'].iloc[-1]
+    try:
+        qfq_close_price = data['close'].multiply(data['adj_factor']) / data['adj_factor'].iloc[-1]
+    except:
+        print("ERROR: cannot get price by ts, the code is " + code + " and will be skiped...\n")
+        return
     close_price = np.array(qfq_close_price)
     time = np.array(data['trade_date'])
     short_ma = np.round(ta.MA(close_price, short_term), 3)
