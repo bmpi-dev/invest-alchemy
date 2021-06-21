@@ -1,0 +1,8 @@
+159928.SZ,消费ETF,中证消费(000932.SH),http://www.csindex.com.cn/zh-CN/indices/index-detail/000932
+159929.SZ,医药ETF,中证医药(000933.SH),http://www.csindex.com.cn/zh-CN/indices/index-detail/000933
+510500.SH,500ETF,中证500(000905.SH),http://www.csindex.com.cn/zh-CN/indices/index-detail/000905
+159915.SZ,创业板,创业板(399006.SZ),http://www.cnindex.com.cn/module/index-detail.html?act_menu=1&indexCode=399006
+159939.SZ,信息技术,全指信息(000993.SH),http://www.csindex.com.cn/zh-CN/indices/index-detail/000993
+512100.SH,1000ETF,中证1000(000852.SH),http://www.csindex.com.cn/zh-CN/indices/index-detail/000852
+512660.SH,军工ETF,中证军工(399967.SZ),http://www.csindex.com.cn/zh-CN/indices/index-detail/399967
+515180.SH,100红利,中证红利(000922.SH),http://www.csindex.com.cn/zh-CN/indices/index-detail/000922
