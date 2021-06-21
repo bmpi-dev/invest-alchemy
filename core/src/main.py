@@ -133,6 +133,32 @@ def send_sns(file_name):
         )
 
 def make_trade_signal():
+    print('================Long ETF=================\n')
+
+    with open("best_etf.txt", "r") as f:
+        for line in f:
+            code_name = line.split(",")
+            run(code_name[0], code_name[1].rstrip())
+    
+    print('可买标的:')
+    for code in buy_codes:
+        print(code)
+    print('#########################################')
+    print('可卖标的:')
+    for code in sell_codes:
+        print(code)
+    print('#########################################')
+    print('持仓标的:')
+    for code in hold_codes:
+        print(code)
+    print('#########################################')
+    print('空仓标的:')
+    for code in empty_codes:
+        print(code)
+
+    # start fund.txt
+    print('\n\n================Other ETF================\n')
+
     with open("fund.txt", "r") as f:
         for line in f:
             code_name = line.split(",")
