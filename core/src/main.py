@@ -61,7 +61,11 @@ def run(code, name):
     adj = pro.fund_adj(ts_code=code, start_date=start, end_date=end).sort_index(ascending=False)
     data = pro.fund_daily(ts_code=code, start_date=start, end_date=end).sort_index(ascending=False)
     data = data.merge(adj, on='trade_date')
-    qfq_close_price = data['close'].multiply(data['adj_factor']) / data['adj_factor'].iloc[-1]
+    try:
+        qfq_close_price = data['close'].multiply(data['adj_factor']) / data['adj_factor'].iloc[-1]
+    except:
+        print("ERROR: cannot get price by ts, the code is " + code + " and will be skiped...\n")
+        return
     close_price = np.array(qfq_close_price)
     time = np.array(data['trade_date'])
     short_ma = np.round(ta.MA(close_price, short_term), 3)
@@ -129,6 +133,32 @@ def send_sns(file_name):
         )
 
 def make_trade_signal():
+    print('================Long ETF=================\n')
+
+    with open("best_etf.txt", "r") as f:
+        for line in f:
+            code_name = line.split(",")
+            run(code_name[0], code_name[1].rstrip())
+    
+    print('可买标的:')
+    for code in buy_codes:
+        print(code)
+    print('#########################################')
+    print('可卖标的:')
+    for code in sell_codes:
+        print(code)
+    print('#########################################')
+    print('持仓标的:')
+    for code in hold_codes:
+        print(code)
+    print('#########################################')
+    print('空仓标的:')
+    for code in empty_codes:
+        print(code)
+
+    # start fund.txt
+    print('\n\n================Other ETF================\n')
+
     with open("fund.txt", "r") as f:
         for line in f:
             code_name = line.split(",")

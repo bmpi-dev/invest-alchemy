@@ -1,6 +1,6 @@
 tushare==1.2.60
 matplotlib==3.1.2
-numpy==1.19.1
+numpy==1.20.0
 pandas==1.1.0
 TA-Lib==0.4.18
 boto3==1.12.27
