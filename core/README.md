@@ -17,7 +17,7 @@ source .env
 
 ```
 docker build -t invest-alchemy/core .
-docker run -t -i -e TUSHARE_API_TOKEN=xxxx invest-alchemy/core
+docker run -t -i -e TUSHARE_API_TOKEN=xxxx -e TG_BOT_API_TOKEN=xxxx -e TG_CHAT_IDS='123,xxx 456,yyy' invest-alchemy/core
 ```
 
 #### push docker to AWS ECR
