@@ -15,7 +15,7 @@
       "command": null,
       "linuxParameters": null,
       "cpu": 0,
-      "environment": [{"name": "TUSHARE_API_TOKEN", "value": "${TUSHARE_API_TOKEN}"}],
+      "environment": [{"name": "TUSHARE_API_TOKEN", "value": "${TUSHARE_API_TOKEN}"}, {"name": "TG_BOT_API_TOKEN", "value": "${TG_BOT_API_TOKEN}"}, {"name": "TG_CHAT_IDS", "value": "${TG_CHAT_IDS}"}],
       "resourceRequirements": null,
       "ulimits": null,
       "dnsServers": null,

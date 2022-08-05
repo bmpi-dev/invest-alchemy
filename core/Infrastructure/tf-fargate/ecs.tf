@@ -23,6 +23,8 @@ data "template_file" "task" {
     aws_region          = "${var.aws_region}"
     ecr_image_uri       = "${var.ecr_image_uri}"
     TUSHARE_API_TOKEN = "${var.TUSHARE_API_TOKEN}"
+    TG_BOT_API_TOKEN = "${var.TG_BOT_API_TOKEN}"
+    TG_CHAT_IDS = "${var.TG_CHAT_IDS}"
   }
 }
 

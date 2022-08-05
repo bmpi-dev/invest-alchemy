@@ -48,33 +48,31 @@ build-docker:
 
 init:
 	@. .env
-	@terraform init \
+	@./terraform -chdir=./Infrastructure/tf-fargate/ init \
 		-backend-config="bucket=$(S3_BUCKET)" \
 		-backend-config="key=$(PROJECT)/terraform.tfstate" \
-		./Infrastructure/tf-fargate/
 
 validate:
-	@terraform validate ./Infrastructure/tf-fargate/
+	@terraform -chdir=./Infrastructure/tf-fargate/ validate
 
 plan:
-	@terraform plan \
+	@terraform -chdir=./Infrastructure/tf-fargate/ plan \
 		-var="env=$(ENV)" \
 		-var="project=$(PROJECT)" \
 		-var="description=$(DESCRIPTION)" \
 		-var="aws_region=$(AWS_REGION)" \
 		-var="artifacts_bucket=$(S3_BUCKET)" \
-		./Infrastructure/tf-fargate/
 
 apply:
-	@terraform apply \
+	@terraform -chdir=./Infrastructure/tf-fargate/ apply \
 		-var="env=$(ENV)" \
 		-var="project=$(PROJECT)" \
 		-var="description=$(DESCRIPTION)" \
-		-compact-warnings ./Infrastructure/tf-fargate/
+		-compact-warnings
 
 destroy:
 	@read -p "Are you sure that you want to destroy: '$(PROJECT)-$(ENV)-$(AWS_REGION)'? [yes/N]: " sure && [ $${sure:-N} = 'yes' ]
-	@terraform destroy ./Infrastructure/tf-fargate/
+	@terraform -chdir=./Infrastructure/tf-fargate/ destroy
 
 clean:
 	@rm -fr build/

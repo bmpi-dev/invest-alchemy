@@ -4,6 +4,10 @@
 
 [serverless-jobs-using-fargate](https://github.com/z0ph/serverless-jobs-using-fargate)
 
+- First need install terraform(v1.2.6)
+  - https://learn.hashicorp.com/tutorials/terraform/install-cli
+- Then `make init`
+
 ## How to start
 
 ### env

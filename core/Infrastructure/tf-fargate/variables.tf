@@ -34,13 +34,13 @@ variable "ecs_taskexec_role" {
 }
 
 variable "subnets_ids" {
-  type        = "list"
+  type        = list(string)
   default     = ["XXX"]
   description = "Subnets IDs used for Fargate Containers"
 }
 
 variable "security_groups_ids" {
-  type        = "list"
+  type        = list(string)
   default     = ["sg-0f1fe5a3bcc61f5ce"]
   description = "Security Groups IDs used for Fargate"
 }
@@ -75,4 +75,12 @@ variable "TUSHARE_API_TOKEN" {
   type        = string
 }
 
+variable "TG_BOT_API_TOKEN" {
+  description = "TG API Token from .env"
+  type        = string
+}
 
+variable "TG_CHAT_IDS" {
+  description = "TG API Chat Ids from .env"
+  type        = string
+}
