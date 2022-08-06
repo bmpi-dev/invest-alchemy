@@ -28,4 +28,4 @@ def send_tg_msg(file_name):
         data = {'chat_id': chat_id, 'text': msg, 'parse_mode': 'HTML'}
         r = requests.post(TG_SEND_MESSAGE_API, data=json.dumps(data), headers=headers)
         if r.status_code != 200:
-            print('Error sending message to TG chat ' + chat_name + ': ' + str(r.text))
+            print('Error sending message to TG chat ' + chat_name + '(' + chat_id + ')' + ': ' + str(r.text))
