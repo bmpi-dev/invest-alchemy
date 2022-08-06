@@ -16,9 +16,15 @@ source .env # export your tushare pro api token
 
 ## TODO
 
-- Email/Slack/IM 提醒
-- 市场热度评分设计
-- 指数历史市盈率
+- 功能
+    - 市场热度评分设计
+    - 指数历史市盈率
+- 优化
+    - Email/IM 提醒
+        - [x] Email提醒
+        - [x] Telegram bot/channel通知
+    - [ ] 交易数据存放至SQLite DB
+    - [ ] 交易数据存放至SQLite DB
 
 # RoadMap
 
