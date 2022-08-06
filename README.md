@@ -1,32 +1,26 @@
 # Invest Alchemy
 
-相关文章: [《Serverless应用开发小记》](https://www.bmpi.dev/dev/guide-to-serverless/)
-
-## How to start
-
-```
-source .env # export your tushare pro api token
-```
-
-### api
-
-### core
-
-### strategy
+Invest Alchemy is a trade assistant for A share stock market.
 
 ## TODO
 
-- 功能
-    - 市场热度评分设计
-    - 指数历史市盈率
-- 优化
-    - Email/IM 提醒
-        - [x] Email提醒
-        - [x] Telegram bot/channel通知
-    - [ ] 交易数据存放至SQLite DB
-    - [ ] 交易数据存放至SQLite DB
+- Feature
+    - Stategy
+        - [x] ETF Double MA
+    - Market Heat Meter
+        - [ ] Index Historical P/E Ratio
+    - Trading Portfolio Calculation
+- Improve
+    - Notify
+        - [x] Email
+        - [x] Telegram bot/channel
+    - Storage
+        - [ ] Trade data store in SQLite DB
+        - [ ] SQLite DB backup to AWS S3
+- Bug Fix
+    - [ ] Trading signals error when double ma price are same
 
-# RoadMap
+## Doc
 
-- 数据
-- 内容
+- [Serverless应用开发小记](https://www.bmpi.dev/dev/guide-to-serverless/)
+- [Adventures in Serverless Application Development](https://www.bmpi.dev/en/dev/guide-to-serverless/)
