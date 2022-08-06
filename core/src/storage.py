@@ -53,6 +53,6 @@ def sync_db():
     return True
 
 def do_db_migration():
-    liquibase = Pyliquibase(defaultsFile="db/liquibase.properties", logLevel="INFO")
+    liquibase = Pyliquibase(defaultsFile="db/liquibase.properties")
     liquibase.status()
     liquibase.update()
