@@ -20,7 +20,7 @@ Invest Alchemy is a trade assistant for A share stock market.
 - Bug Fix
     - [ ] Trading signals error when double ma price are same
 
-## Doc
+## Post
 
 - [Serverless应用开发小记](https://www.bmpi.dev/dev/guide-to-serverless/)
 - [Adventures in Serverless Application Development](https://www.bmpi.dev/en/dev/guide-to-serverless/)
