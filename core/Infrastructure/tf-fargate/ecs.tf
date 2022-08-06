@@ -6,6 +6,10 @@ resource "aws_ecs_cluster" "ecs_cluster" {
     Project     = "${var.project}"
     Environment = "${var.env}"
   }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_provider" {
+  cluster_name = aws_ecs_cluster.ecs_cluster.name
 
   capacity_providers = ["FARGATE_SPOT"]
 
@@ -15,22 +19,16 @@ resource "aws_ecs_cluster" "ecs_cluster" {
   }
 }
 
-data "template_file" "task" {
-  template = "${file("./Infrastructure/tf-fargate/tasks/task_definition.json")}"
-
-  vars = {
+resource "aws_ecs_task_definition" "task_definition" {
+  family                   = "${var.project}_task_definition_${var.env}"
+  container_definitions    = templatefile("${path.module}/tasks/task_definition.json", {
     project             = "${var.project}"
     aws_region          = "${var.aws_region}"
     ecr_image_uri       = "${var.ecr_image_uri}"
-    TUSHARE_API_TOKEN = "${var.TUSHARE_API_TOKEN}"
-    TG_BOT_API_TOKEN = "${var.TG_BOT_API_TOKEN}"
-    TG_CHAT_IDS = "${var.TG_CHAT_IDS}"
-  }
-}
-
-resource "aws_ecs_task_definition" "task_definition" {
-  family                   = "${var.project}_task_definition_${var.env}"
-  container_definitions     = "${data.template_file.task.rendered}"
+    TUSHARE_API_TOKEN   = "${var.TUSHARE_API_TOKEN}"
+    TG_BOT_API_TOKEN    = "${var.TG_BOT_API_TOKEN}"
+    TG_CHAT_IDS         = "${var.TG_CHAT_IDS}"
+  })
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "${var.ecs_cpu_units}"

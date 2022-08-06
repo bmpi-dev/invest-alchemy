@@ -48,7 +48,7 @@ build-docker:
 
 init:
 	@. .env
-	@./terraform -chdir=./Infrastructure/tf-fargate/ init \
+	@terraform -chdir=./Infrastructure/tf-fargate/ init \
 		-backend-config="bucket=$(S3_BUCKET)" \
 		-backend-config="key=$(PROJECT)/terraform.tfstate" \
 
