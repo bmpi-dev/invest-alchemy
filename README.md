@@ -5,20 +5,21 @@ Invest Alchemy is a trade assistant for A share stock market.
 ## TODO
 
 - Feature
-    - Stategy
-        - [x] ETF Double MA
-    - Market Heat Meter
-        - [ ] Index Historical P/E Ratio
-    - Trading Portfolio Calculation
+  - Stategy
+    - [x] ETF Double MA
+  - Market Heat Meter
+    - [ ] Index Historical P/E Ratio
+  - Trading Portfolio Calculation
 - Improve
-    - Notify
-        - [x] Email
-        - [x] Telegram bot/channel
-    - Storage
-        - [ ] Trade data store in SQLite DB
-        - [x] SQLite DB backup to AWS S3
+  - Notify
+    - [x] Email
+    - [x] Telegram bot/channel
+  - Storage
+    - [ ] Add database schema migration tool
+    - [x] SQLite DB backup to AWS S3
+    - [ ] Trade data store in SQLite DB
 - Bug Fix
-    - [ ] Trading signals error when double ma price are same
+  - [ ] Trading signals error when double ma price are same
 
 ## Post
 
