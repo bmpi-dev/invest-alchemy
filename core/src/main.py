@@ -1,4 +1,4 @@
-from storage import upload_file
+from storage import upload_file, sync_db
 from constants import OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR
 from notification import send_sns, send_tg_msg
 from strategy import double_ma_strategy
@@ -28,6 +28,9 @@ def process_codes(code_name):
         empty_codes.append([code, name, message])
 
 if __name__ == "__main__":
+    print('sync db at startup...\n')
+    sync_db()
+
     # start best_etf.txt
     title_msg = '==Long ETF==\n'
     with open("data/best_etf.txt", "r") as f:
@@ -53,3 +56,6 @@ if __name__ == "__main__":
     print('start send tg msg...\n')
     send_tg_msg('/tmp/' + OUTPUT_FILE)
     print('end send tg msg...\n')
+
+    print('sync db at shutdown...\n')
+    sync_db()

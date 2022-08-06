@@ -1,6 +1,9 @@
 import boto3
 import botocore
-from constants import AWS_REGION
+from constants import AWS_REGION, S3_SQLITE_DB_BASE_DIR, SQLITE_DB_FILE, LOCAL_SQLITE_DB_BASE_DIR, S3_BUCKET_NAME
+from os.path import exists
+
+s3_client = boto3.client('s3', region_name=AWS_REGION)
 
 def upload_file(file_name, bucket, object_name=None):
     """Upload a file to an S3 bucket
@@ -16,10 +19,34 @@ def upload_file(file_name, bucket, object_name=None):
         object_name = file_name
 
     # Upload the file
-    s3_client = boto3.client('s3', region_name=AWS_REGION)
     try:
         _ = s3_client.upload_file(file_name, bucket, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'text/plain; charset=utf-8'})
     except botocore.exceptions.ClientError as e:
         print(e)
         return False
+    return True
+
+def sync_db():
+    """Synchronize database with S3 buckets by local first priority
+
+    :return: True if sync succeeded, else False
+    """
+
+    sqlite_local_file_name = LOCAL_SQLITE_DB_BASE_DIR + SQLITE_DB_FILE
+    sqlite_s3_file_name = S3_SQLITE_DB_BASE_DIR + SQLITE_DB_FILE
+    if (exists(sqlite_local_file_name)):
+        print("Uploading database to S3...")
+        try:
+            _ = s3_client.upload_file(sqlite_local_file_name, S3_BUCKET_NAME, sqlite_s3_file_name)
+        except botocore.exceptions.ClientError as e:
+            print(e)
+            return False
+    else:
+        # Download database from S3
+        print("Download database from S3...")
+        try:
+            _ = s3_client.download_file(S3_BUCKET_NAME, sqlite_s3_file_name, sqlite_local_file_name)
+        except botocore.exceptions.ClientError as e:
+            print(e)
+            return False
     return True
