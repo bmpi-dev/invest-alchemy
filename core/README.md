@@ -39,3 +39,11 @@ docker push 745121664662.dkr.ecr.us-east-1.amazonaws.com/invest-alchemy-core:lat
 ## Workflow
 
 change src code -> make build-docker -> make apply
+
+## Note
+
+### Database
+
+```bash
+python3 -m pwiz -e sqlite /tmp/base.db # generate peewee model from sqlite database
+```

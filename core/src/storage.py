@@ -3,8 +3,10 @@ import botocore
 from constants import AWS_REGION, S3_SQLITE_DB_BASE_DIR, SQLITE_DB_FILE, LOCAL_SQLITE_DB_BASE_DIR, S3_BUCKET_NAME
 from os.path import exists
 from pyliquibase import Pyliquibase
+from peewee import SqliteDatabase
 
 s3_client = boto3.client('s3', region_name=AWS_REGION)
+db = SqliteDatabase(LOCAL_SQLITE_DB_BASE_DIR + SQLITE_DB_FILE)
 
 def upload_file(file_name, bucket, object_name=None):
     """Upload a file to an S3 bucket
@@ -55,3 +57,9 @@ def sync_db():
 def do_db_migration():
     liquibase = Pyliquibase(defaultsFile="db/liquibase.properties")
     liquibase.update()
+
+def connect_db():
+    db.connect()
+
+def disconnect_db():
+    db.close()

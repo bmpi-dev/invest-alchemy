@@ -1,8 +1,10 @@
-from storage import upload_file, sync_db, do_db_migration
-from constants import OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR
+from storage import upload_file, sync_db, do_db_migration, disconnect_db, connect_db
+from constants import OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR
 from notification import send_sns, send_tg_msg
 from strategy import double_ma_strategy
 from message import generate_message_to_file
+from multiprocessing import Process
+from db import DmaTradeSignal
 
 buy_codes = []
 sell_codes = []
@@ -26,13 +28,28 @@ def process_codes(code_name):
         hold_codes.append([code, name, message])
     elif state == "E":
         empty_codes.append([code, name, message])
+    DmaTradeSignal.insert(trade_date=TODAY_STR, trade_code=code, trade_name=name, trade_type=state).on_conflict_replace().execute()
 
-if __name__ == "__main__":
+def startup():
     print('sync db at startup...\n')
     sync_db()
 
-    print('start migrate db...\n')
-    do_db_migration()
+    print('\nstart migrate db in a new process...\n')
+    p = Process(target=do_db_migration, args=())
+    p.start()
+    p.join()
+
+    print('connect db at startup...\n')
+    connect_db()
+
+def shutdown():
+    print('sync db at shutdown...\n')
+    sync_db()
+    print('disconnect db at shutdown...\n')
+    disconnect_db()
+
+if __name__ == "__main__":
+    startup()
 
     print('start process long etf...\n')
     title_msg = '==Long ETF==\n'
@@ -60,5 +77,4 @@ if __name__ == "__main__":
     send_tg_msg('/tmp/' + OUTPUT_FILE)
     print('end send tg msg...\n')
 
-    print('sync db at shutdown...\n')
-    sync_db()
+    shutdown()

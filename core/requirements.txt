@@ -6,3 +6,4 @@ TA-Lib==0.4.18
 boto3==1.12.27
 requests==2.27.1
 pyliquibase==2.0.11
+peewee==3.15.1
