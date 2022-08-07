@@ -54,5 +54,4 @@ def sync_db():
 
 def do_db_migration():
     liquibase = Pyliquibase(defaultsFile="db/liquibase.properties")
-    liquibase.status()
     liquibase.update()

@@ -1,4 +1,4 @@
-from storage import upload_file, sync_db
+from storage import upload_file, sync_db, do_db_migration
 from constants import OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR
 from notification import send_sns, send_tg_msg
 from strategy import double_ma_strategy
@@ -31,7 +31,10 @@ if __name__ == "__main__":
     print('sync db at startup...\n')
     sync_db()
 
-    # start best_etf.txt
+    print('start migrate db...\n')
+    do_db_migration()
+
+    print('start process long etf...\n')
     title_msg = '==Long ETF==\n'
     with open("data/best_etf.txt", "r") as f:
         for line in f:
@@ -40,7 +43,7 @@ if __name__ == "__main__":
 
     reset_codes()
 
-    # start fund.txt
+    print('start process other etf...\n')
     title_msg = '==Other ETF==\n'
     with open("data/fund.txt", "r") as f:
         for line in f:
