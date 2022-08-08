@@ -19,7 +19,7 @@ Invest Alchemy is a trade assistant for A share stock market.
     - [x] SQLite DB backup to AWS S3
     - [x] Trade data store in SQLite DB
 - Bug Fix
-  - [ ] Trading signals error when double ma price are same
+  - [x] Trading signals error when double ma price are same
 
 ## Post
 
