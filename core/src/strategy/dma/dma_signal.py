@@ -1,4 +1,4 @@
-from trade_signal import TradeSignal, TradeSignalState
+from strategy.trade_signal import TradeSignal, TradeSignalState
 from constants import STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM
 
 class DMATradeSignal(TradeSignal):

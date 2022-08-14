@@ -1,6 +1,8 @@
 from email import message
 import sys
 from constants import OUTPUT_FILE
+from strategy.trade_strategy import IStrategy
+from strategy.trade_signal import TradeSignalState
 
 class Logger(object):
     def __init__(self):
@@ -28,8 +30,27 @@ class Logger(object):
         #you might want to specify some extra behavior here.
         pass
 
-def generate_message_to_file(buy_codes, sell_codes, hold_codes, empty_codes, title_msg):
+def generate_message_to_file(strategy: IStrategy, title_msg: str) -> None:
     sys.stdout = Logger()
+
+    buy_codes = []
+    sell_codes = []
+    hold_codes = []
+    empty_codes = []
+
+    for signal in strategy.trade_signals:
+        state = signal.state
+        code = signal.code
+        name = signal.name
+        message = signal.get_message()
+        if state == TradeSignalState.BUY:
+            buy_codes.append([code, name, message])
+        elif state == TradeSignalState.SELL:
+            sell_codes.append([code, name, message])
+        elif state == TradeSignalState.HOLD:
+            hold_codes.append([code, name, message])
+        elif state == TradeSignalState.EMPTY:
+            empty_codes.append([code, name, message])
 
     split_msg = '##########'
 

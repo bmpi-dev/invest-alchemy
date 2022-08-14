@@ -14,3 +14,4 @@ TG_CHATS = os.environ['TG_CHAT_IDS'].split(' ')
 TG_SEND_MESSAGE_API='https://api.telegram.org/bot' + os.environ['TG_BOT_API_TOKEN'] + '/sendMessage'
 STRATEGY_DMA_SHORT_TERM = 11
 STRATEGY_DMA_LONG_TERM = 22
+MAX_STRATEGY_SIGNAL_ERROR_COUNT = 5

@@ -5,7 +5,7 @@ class BaseModel(Model):
     class Meta:
         database = db
 
-class DmaTradeSignal(BaseModel):
+class DmaTradeSignalModel(BaseModel):
     trade_date = TextField()
     trade_code = TextField()
     trade_name = TextField(null=True)
