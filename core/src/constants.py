@@ -12,9 +12,5 @@ SNS_TOPIC = 'arn:aws:sns:us-east-1:745121664662:trade-signal-topic'
 TODAY_STR = datetime.today().strftime('%Y%m%d')
 TG_CHATS = os.environ['TG_CHAT_IDS'].split(' ')
 TG_SEND_MESSAGE_API='https://api.telegram.org/bot' + os.environ['TG_BOT_API_TOKEN'] + '/sendMessage'
-
-STRATEGY_SIGNAL_BUY = 'B'
-STRATEGY_SIGNAL_SELL = 'S'
-STRATEGY_SIGNAL_HOLD = 'H'
-STRATEGY_SIGNAL_EMPTY = 'E'
-STRATEGY_SIGNAL_ERROR = 'X'
+STRATEGY_DMA_SHORT_TERM = 11
+STRATEGY_DMA_LONG_TERM = 22
