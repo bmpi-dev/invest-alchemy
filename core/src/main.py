@@ -6,6 +6,7 @@ from message import generate_message_to_file
 from multiprocessing import Process
 from db import DmaTradeSignalModel
 from strategy.trade_signal import TradeSignalState
+from client.ts_client import TSClient
 
 def startup():
     print('sync db at startup...\n')
@@ -35,21 +36,23 @@ def can_send_message():
     if error_count >= MAX_STRATEGY_SIGNAL_ERROR_COUNT:
         print("Too many errors happened during get trade targets' price by tushare, stop sending message...\n")
         return False
-    return False
+    return False # TODO: - check when deploy to production
 
 if __name__ == "__main__":
     startup()
 
+    trade_data_client = TSClient()
+
     print('start process long etf...\n')
     title_msg = '==Long ETF==\n'
-    dma_strategy = DMATradeStrategy()
+    dma_strategy = DMATradeStrategy(trade_data_client)
     dma_strategy.process("data/best_etf.txt")
     dma_strategy.save_signals_to_db()
     generate_message_to_file(dma_strategy, title_msg)
 
     print('start process other etf...\n')
     title_msg = '==Other ETF==\n'
-    dma_strategy = DMATradeStrategy()
+    dma_strategy = DMATradeStrategy(trade_data_client)
     dma_strategy.process("data/fund.txt")
     dma_strategy.save_signals_to_db()
     generate_message_to_file(dma_strategy, title_msg)
