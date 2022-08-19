@@ -1,18 +1,18 @@
 from email import message
 import sys
-from constants import OUTPUT_FILE
+from constants import OUTPUT_FILE, LOCAL_BASE_DIR
 from strategy.trade_strategy import IStrategy
 from strategy.trade_signal import TradeSignalState
 
 class Logger(object):
     def __init__(self):
         self.terminal = sys.stdout
-        self.log = open('/tmp/' + OUTPUT_FILE, "a")
+        self.log = open(LOCAL_BASE_DIR + OUTPUT_FILE, "a")
         self.is_open = True
 
     def open(self):
         self.terminal = sys.stdout
-        self.log = open('/tmp/' + OUTPUT_FILE, "a")
+        self.log = open(LOCAL_BASE_DIR + OUTPUT_FILE, "a")
         self.is_open = True
 
     def close(self):

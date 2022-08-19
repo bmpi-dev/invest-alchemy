@@ -1,5 +1,5 @@
 from storage import upload_file, sync_db, do_db_migration, disconnect_db, connect_db
-from constants import OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT
+from constants import OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR
 from notification import send_sns, send_tg_msg
 from strategy.dma.dma_strategy import DMATradeStrategy
 from message import generate_message_to_file
@@ -59,13 +59,13 @@ if __name__ == "__main__":
     
     if can_send_message():
         print('\nstart upload output file to s3...\n')
-        upload_file('/tmp/' + OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR + OUTPUT_FILE)
+        upload_file(LOCAL_BASE_DIR + OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR + OUTPUT_FILE)
         print('end upload output file to s3\n')
         print('start send sns...\n')
-        send_sns('/tmp/' + OUTPUT_FILE)
+        send_sns(LOCAL_BASE_DIR + OUTPUT_FILE)
         print('end send sns...\n')
         print('start send tg msg...\n')
-        send_tg_msg('/tmp/' + OUTPUT_FILE)
+        send_tg_msg(LOCAL_BASE_DIR + OUTPUT_FILE)
         print('end send tg msg...\n')
 
     shutdown()

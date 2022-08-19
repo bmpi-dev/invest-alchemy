@@ -45,5 +45,5 @@ change src code -> make build-docker -> make apply
 ### Database
 
 ```bash
-python3 -m pwiz -e sqlite /tmp/base.db # generate peewee model from sqlite database
+python3 -m pwiz -e sqlite /tmp/invest-alchemy/base.db # generate peewee model from sqlite database
 ```

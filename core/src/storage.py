@@ -1,12 +1,12 @@
 import boto3
 import botocore
-from constants import AWS_REGION, S3_SQLITE_DB_BASE_DIR, SQLITE_DB_FILE, LOCAL_SQLITE_DB_BASE_DIR, S3_BUCKET_NAME
+from constants import AWS_REGION, S3_SQLITE_DB_BASE_DIR, BASE_SQLITE_DB_FILE, LOCAL_BASE_DIR, S3_BUCKET_NAME
 from os.path import exists
 from pyliquibase import Pyliquibase
 from peewee import SqliteDatabase
 
 s3_client = boto3.client('s3', region_name=AWS_REGION)
-db = SqliteDatabase(LOCAL_SQLITE_DB_BASE_DIR + SQLITE_DB_FILE)
+db = SqliteDatabase(LOCAL_BASE_DIR + BASE_SQLITE_DB_FILE)
 
 def upload_file(file_name, bucket, object_name=None):
     """Upload a file to an S3 bucket
@@ -35,8 +35,8 @@ def sync_db():
     :return: True if sync succeeded, else False
     """
 
-    sqlite_local_file_name = LOCAL_SQLITE_DB_BASE_DIR + SQLITE_DB_FILE
-    sqlite_s3_file_name = S3_SQLITE_DB_BASE_DIR + SQLITE_DB_FILE
+    sqlite_local_file_name = LOCAL_BASE_DIR + BASE_SQLITE_DB_FILE
+    sqlite_s3_file_name = S3_SQLITE_DB_BASE_DIR + BASE_SQLITE_DB_FILE
     if (exists(sqlite_local_file_name)):
         print("Uploading database to S3...")
         try:
