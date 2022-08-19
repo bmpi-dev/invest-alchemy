@@ -18,13 +18,13 @@ def DMATraderV01(ITrader):
     def update_portfolios(self, trade_date):
         for p in self.portfolios:
             p.sync_files()
-            self.__generate_transaction_with_strategy_signal(p)
-            self.__generate_funding_with_funding_strategy(p)
-            p.update_net_value_ledger(TODAY_STR)
+            self.__generate_transaction_with_strategy_signal(p, trade_date)
+            self.__generate_funding_with_funding_strategy(p, trade_date)
+            p.update_net_value_ledger(trade_date)
             p.sync_files()
 
-    def __generate_transaction_with_strategy_signal(self, p: Portfolio):
-        """Generate transaction record with strategy by given trade date, only robot need do this
+    def __generate_transaction_with_strategy_signal(self, p: Portfolio, trade_date):
+        """Generate transaction record with strategy (following the double MA strategy signals stored in base.db) by given trade date, only robot need do this
 
         :param trade_date: trade date
         :return: None
@@ -32,7 +32,7 @@ def DMATraderV01(ITrader):
         # TODO: implement
         pass
 
-    def __generate_funding_with_funding_strategy(self, p: Portfolio):
+    def __generate_funding_with_funding_strategy(self, p: Portfolio, trade_date):
         """Generate funding record with funding strategy by given trade date, , only robot need do this
 
         :param trade_date: trade date

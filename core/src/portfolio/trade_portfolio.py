@@ -9,7 +9,6 @@ class Portfolio:
         self.portfolio_base_path = LOCAL_BASE_DIR + 'portfolio/' + self.u_name + '/' + self.portfolio_name + '/'
         self.portfolio_db_path = self.portfolio_base_path + self.portfolio_name + '.db'
         self.transaction_ledger = self.portfolio_base_pat + 'transaction_ledger.csv'
-        self.transaction_ledger = self.portfolio_base_pat + 'transaction_ledger.csv'
         self.funding_ledger = self.portfolio_base_pat + 'funding_ledger.csv'
 
     def sync_files(self):

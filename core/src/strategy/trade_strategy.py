@@ -24,6 +24,7 @@ class IStrategy(metaclass=ABCMeta):
         pass
 
     def save_signals_to_db(self):
+        # TODO: need refactor, move this to DMATradeStrategy class
         for signal in self.trade_signals:
             state = signal.state
             code = signal.code

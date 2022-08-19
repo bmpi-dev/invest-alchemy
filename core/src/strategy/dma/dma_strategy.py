@@ -14,6 +14,7 @@ start = (datetime.today() - timedelta(days=MAX_DAYS)).strftime('%Y%m%d')
 end = TODAY_STR
 
 class DMATradeStrategy(IStrategy):
+    # TODO: need refactor, support different trade parameter like 11/22, 10/20, 30/60, 60/120. Using version like dma_strategy_v01
 
     def __init__(self, client: ITradeDataClient):
         self.__trade_signals = []
