@@ -6,8 +6,18 @@ class ITradeDataClient(metaclass=ABCMeta):
         """Get qfq close price
 
         :param code: trade target code
-        :param code: start date
-        :param code: end date
+        :param start: start date
+        :param end: end date
         :return: DataFrame
+        """
+        pass
+
+    @abstractmethod
+    def get_a_share_trade_date(self, start, end) -> [str]:
+        """Get A share trade date
+
+        :param start: start date
+        :param end: end date
+        :return: List of trade date str
         """
         pass

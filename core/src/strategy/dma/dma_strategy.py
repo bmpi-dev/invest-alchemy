@@ -18,7 +18,7 @@ class DMATradeStrategy(IStrategy):
         self.__client = client
         self.__short = short
         self.__long = long
-        self.__start = (datetime.strptime(trade_date, TRADE_DATE_FORMAT_STR) - timedelta(days=(long-short)*3)).strftime(TRADE_DATE_FORMAT_STR)
+        self.__start = (datetime.strptime(trade_date, TRADE_DATE_FORMAT_STR) - timedelta(days=150)).strftime(TRADE_DATE_FORMAT_STR)
         self.__end = trade_date
         self.__trade_strategy_db_marker = str(self.__short) + '/' + str(self.__long)
 
@@ -36,11 +36,14 @@ class DMATradeStrategy(IStrategy):
     def process(self, file_path):
         with open(file_path, "r") as f:
             for line in f:
-                code_name = line.split(",")
-                dma_trade_signal = self.__trade(code_name[0], code_name[1].rstrip())
-                if dma_trade_signal.state == TradeSignalState.ERROR:
-                    print('Error happened for %s(%s), message is %s' % (dma_trade_signal.name, dma_trade_signal.code, dma_trade_signal.message))
-                self.__trade_signals.append(dma_trade_signal)
+                try:
+                    code_name = line.split(",")
+                    dma_trade_signal = self.__trade(code_name[0], code_name[1].rstrip())
+                    if dma_trade_signal.state == TradeSignalState.ERROR:
+                        print('Error happened for %s(%s), message is %s' % (dma_trade_signal.name, dma_trade_signal.code, dma_trade_signal.message))
+                    self.__trade_signals.append(dma_trade_signal)
+                except Exception as e:
+                    print(e)
 
     def __trade(self, code, name):
         print('start calculating target for %s(%s)' % (name, code))

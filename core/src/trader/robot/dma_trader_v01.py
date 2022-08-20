@@ -4,6 +4,7 @@ from constants import TODAY_STR
 from typing import List
 from os.path import exists
 import os
+import csv
 
 class DMATraderV01(ITrader):
     """Robot trader(V01) who follow the Double MA strategy(MA parameter: 11/22)
@@ -32,11 +33,14 @@ class DMATraderV01(ITrader):
         :param trade_date: trade date
         :return: None
         """
-        # TODO: implement
         print('generate_funding_with_funding_strategy for portfolio(%s) of user(%s)' % (p.portfolio_name, p.u_name))
         if (not exists(p.funding_local_ledger)):
-            with open(p.funding_local_ledger, 'w') as f:
-                pass
+            with open(p.funding_local_ledger, 'w', newline='') as csvfile:
+                fieldnames = ['trade_date', 'amount']
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerow({'trade_date': '20180920', 'amount': 100000})
+
 
     def __generate_transaction_with_strategy_signal(self, p: Portfolio, trade_date):
         """Generate transaction record with strategy (following the double MA strategy signals stored in base.db) by given trade date, only robot need do this
@@ -44,8 +48,10 @@ class DMATraderV01(ITrader):
         :param trade_date: trade date
         :return: None
         """
-        # TODO: implement
         print('generate_transaction_with_strategy_signal for portfolio(%s) of user(%s)' % (p.portfolio_name, p.u_name))
         if (not exists(p.transaction_local_ledger)):
-            with open(p.transaction_local_ledger, 'w') as f:
-                pass
+            with open(p.funding_local_ledger, 'w', newline='') as csvfile:
+                fieldnames = ['trade_date', 'trade_code', 'trade_name', 'trade_type', 'trade_amount', 'trade_price']
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+        # TODO: implement

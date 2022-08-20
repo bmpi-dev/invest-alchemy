@@ -6,7 +6,10 @@ from pyliquibase import Pyliquibase
 from peewee import SqliteDatabase
 
 s3_client = boto3.client('s3', region_name=AWS_REGION)
-db = SqliteDatabase(LOCAL_BASE_DIR + BASE_SQLITE_DB_FILE)
+db = SqliteDatabase(LOCAL_BASE_DIR + BASE_SQLITE_DB_FILE, pragmas={
+    'journal_mode': 'wal',  # WAL-mode.
+    'cache_size': -64 * 1000,  # 64MB cache.
+    })
 
 def upload_file(file_name, bucket, object_name=None):
     """Upload a file to an S3 bucket
