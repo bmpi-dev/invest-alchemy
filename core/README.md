@@ -47,3 +47,12 @@ change src code -> make build-docker -> make apply
 ```bash
 python3 -m pwiz -e sqlite /tmp/invest-alchemy/base.db # generate peewee model from sqlite database
 ```
+
+### S3
+
+S3 bucket enable versioning to prevent accidental database deletion, the version lifecycle rule is:
+  - Day 0
+    - Objects become noncurrent
+  - Day 7
+    - 3 newest noncurrent versions are retained
+    - All other noncurrent versions are permanently deleted

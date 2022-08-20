@@ -4,7 +4,7 @@ from portfolio.trade_portfolio import Portfolio
 
 class ITrader(metaclass=ABCMeta):
     @abstractproperty
-    def portfolios() -> List[Portfolio]:
+    def portfolios(self) -> List[Portfolio]:
         """Get the portfolios
 
         :return: the list of the Portfolio
@@ -12,7 +12,7 @@ class ITrader(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def __init__(self, u_name=None):
+    def __init__(self, u_name: str=None):
         """Initialize the trader
 
         :param u_id: user id, store in the base.db
