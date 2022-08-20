@@ -11,6 +11,7 @@ class DmaTradeSignalModel(BaseModel):
     trade_name = TextField(null=True)
     trade_timestamp = IntegerField(constraints=[SQL("DEFAULT strftime('%s','now')")], null=True)
     trade_type = IntegerField(null=True)
+    trade_strategy = TextField(constraints=[SQL("DEFAULT '11/22'")], null=True)
 
     class Meta:
         table_name = 'dma_trade_signal'

@@ -1,5 +1,5 @@
 from storage import upload_file, sync_db, do_db_migration, disconnect_db, connect_db
-from constants import OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR
+from constants import OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM
 from notification import send_sns, send_tg_msg
 from strategy.dma.dma_strategy import DMATradeStrategy
 from message import generate_message_to_file
@@ -45,14 +45,14 @@ if __name__ == "__main__":
 
     print('start process long etf...\n')
     title_msg = '==Long ETF==\n'
-    dma_strategy = DMATradeStrategy(trade_data_client)
+    dma_strategy = DMATradeStrategy(trade_data_client, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM, TODAY_STR)
     dma_strategy.process("data/best_etf.txt")
     dma_strategy.save_signals_to_db()
     generate_message_to_file(dma_strategy, title_msg)
 
     print('start process other etf...\n')
     title_msg = '==Other ETF==\n'
-    dma_strategy = DMATradeStrategy(trade_data_client)
+    dma_strategy = DMATradeStrategy(trade_data_client, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM, TODAY_STR)
     dma_strategy.process("data/fund.txt")
     dma_strategy.save_signals_to_db()
     generate_message_to_file(dma_strategy, title_msg)

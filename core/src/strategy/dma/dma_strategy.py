@@ -2,27 +2,36 @@ import talib as ta
 import numpy as np
 from datetime import datetime, timedelta
 import os
-from constants import TODAY_STR, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM
+from constants import TRADE_DATE_FORMAT_STR
 from strategy.dma.dma_signal import DMATradeSignal
 from strategy.trade_signal import TradeSignalState
 from strategy.trade_strategy import IStrategy
 from client.trade_data_client import ITradeDataClient
-
-MAX_DAYS = 150
-
-start = (datetime.today() - timedelta(days=MAX_DAYS)).strftime('%Y%m%d')
-end = TODAY_STR
+from db import DmaTradeSignalModel
 
 class DMATradeStrategy(IStrategy):
-    # TODO: need refactor, support different trade parameter like 11/22, 10/20, 30/60, 60/120. Using version like dma_strategy_v01
 
-    def __init__(self, client: ITradeDataClient):
+    def __init__(self, client: ITradeDataClient, short: int, long: int, trade_date: str):
+        if short >= long:
+            raise ValueError("short cannot be greater than long")
         self.__trade_signals = []
         self.__client = client
+        self.__short = short
+        self.__long = long
+        self.__start = (datetime.strptime(trade_date, TRADE_DATE_FORMAT_STR) - timedelta(days=(long-short)*3)).strftime(TRADE_DATE_FORMAT_STR)
+        self.__end = trade_date
+        self.__trade_strategy_db_marker = str(self.__short) + '/' + str(self.__long)
 
     @property
     def trade_signals(self):
         return self.__trade_signals
+
+    def save_signals_to_db(self):
+        for signal in self.trade_signals:
+            state = signal.state
+            code = signal.code
+            name = signal.name
+            DmaTradeSignalModel.insert(trade_date=self.__end, trade_code=code, trade_name=name, trade_type=state.value, trade_strategy=self.__trade_strategy_db_marker).on_conflict_replace().execute()
 
     def process(self, file_path):
         with open(file_path, "r") as f:
@@ -36,14 +45,14 @@ class DMATradeStrategy(IStrategy):
     def __trade(self, code, name):
         print('start calculating target for %s(%s)' % (name, code))
         try:
-            qfq_close_price = self.__client.get_qfq_close_price(code, start, end)
+            qfq_close_price = self.__client.get_qfq_close_price(code, self.__start, self.__end)
         except Exception as e:
             print(e)
             return DMATradeSignal(state=TradeSignalState.ERROR, code=code, name=name, message='cannot get price, something wrong happened on ITradeDataClient')
         qfq_price = np.array(qfq_close_price['qfq'])
         time = np.array(qfq_close_price['trade_date'])
-        short_ma = np.round(ta.MA(qfq_price, STRATEGY_DMA_SHORT_TERM), 3)
-        long_ma = np.round(ta.MA(qfq_price, STRATEGY_DMA_LONG_TERM), 3)
+        short_ma = np.round(ta.MA(qfq_price, self.__short), 3)
+        long_ma = np.round(ta.MA(qfq_price, self.__long), 3)
         if (short_ma[-1] > long_ma[-1] and short_ma[-2] <= long_ma[-2]):
             return DMATradeSignal(state=TradeSignalState.BUY, code=code, name=name, close_price=qfq_price[-1], short_price=short_ma[-1], long_price=long_ma[-1])
         elif (short_ma[-1] < long_ma[-1] and short_ma[-2] >= long_ma[-2]):
