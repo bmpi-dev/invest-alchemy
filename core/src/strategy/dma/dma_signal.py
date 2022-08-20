@@ -20,9 +20,9 @@ class DMATradeSignal(TradeSignal):
         if self.message != '':
             return self.message
         if self.state == TradeSignalState.BUY:
-            self.message = super().get_message() + "收盘价" + str(self.close_price) + ", " + self.short + "日均线" + str(self.short_price) + ", " + self.long + "日均线" + str(self.long_price)
+            self.message = super().get_message() + "收盘价" + str(self.close_price) + ", " + str(self.short) + "日均线" + str(self.short_price) + ", " + str(self.long) + "日均线" + str(self.long_price)
         elif self.state == TradeSignalState.SELL:
-            self.message = super().get_message() + "收盘价" + str(self.close_price) + ", " + self.short + "日均线" + str(self.short_price) + ", " + self.long + "日均线" + str(self.long_price)
+            self.message = super().get_message() + "收盘价" + str(self.close_price) + ", " + str(self.short) + "日均线" + str(self.short_price) + ", " + str(self.long) + "日均线" + str(self.long_price)
         elif self.state == TradeSignalState.HOLD:
             self.message = super().get_message() + "于" + self.trade_date + "日买入, " + "持有" + str(self.trade_days) + "天, 盈利" + str(round(self.trade_profit * 100, 2)) + "%"
         elif self.state == TradeSignalState.EMPTY:
