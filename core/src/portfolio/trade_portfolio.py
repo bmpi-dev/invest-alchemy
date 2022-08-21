@@ -9,9 +9,10 @@ import os
 class Portfolio:
     """Trade Portfolio class"""
 
-    def __init__(self, u_name, portfolio_name):
+    def __init__(self, u_name, portfolio_name, create_date):
         self.u_name = u_name
         self.portfolio_name = portfolio_name
+        self.create_date = create_date
         self.portfolio_local_base_path = LOCAL_BASE_DIR + 'portfolio/' + self.u_name + '/' + self.portfolio_name + '/'
         self.portfolio_remote_base_path = S3_PORTFOLIO_BASE_DIR + self.u_name + '/' + self.portfolio_name + '/'
         self.portfolio_db_local_path = self.portfolio_local_base_path + self.portfolio_name + '.db'

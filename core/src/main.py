@@ -7,8 +7,14 @@ from multiprocessing import Process
 from db import DmaTradeSignalModel
 from strategy.trade_signal import TradeSignalState
 from client.ts_client import TSClient
+from os.path import exists
+import os
 
 def startup():
+    print('make sure local bash path exists...\n')
+    if (not exists(LOCAL_BASE_DIR)):
+        os.makedirs(LOCAL_BASE_DIR, exist_ok=True)
+
     print('sync db at startup...\n')
     sync_db()
 
