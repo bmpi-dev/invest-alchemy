@@ -25,6 +25,8 @@ Invest Alchemy is a trade assistant for A share stock market.
   - Notify
     - [x] Email
     - [x] Telegram bot/channel
+    - [ ] Show different strategy signal (daily)
+    - [ ] Show different trade robot portfolio performance report (weekly)
   - Storage
     - [x] Add database schema migration tool
     - [x] SQLite DB backup to AWS S3
