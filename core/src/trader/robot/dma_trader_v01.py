@@ -33,6 +33,9 @@ class DMATraderV01(ITrader):
             p.finish()
 
     def __get_trade_buy_price_amount_with_funding_strategy(self, p: Portfolio, trade_code, trade_date):
+        current_available_amount = get_trade_amount_last_transaction_record(p.transaction_local_ledger, trade_code)
+        if (current_available_amount is not None and current_available_amount > 0):
+            raise Exception('already held position, abort to buy for portfolio(%s) of user(%s)' % (p.portfolio_name, p.u_name))
         _, current_available_funding = get_current_available_funding(p.funding_local_ledger)
         trade_price = get_trade_qfq_price(trade_date, trade_code)
         if (current_available_funding < self.__min_amount_single_trade_target):
@@ -41,14 +44,14 @@ class DMATraderV01(ITrader):
             trade_amount = int(self.__max_amount_single_trade_target / trade_price / 100) * 100 # rounding to the nearest hundred because minimum tradeable quantity is a multiple of one hundred
         else:
             trade_amount = int(current_available_funding / trade_price / 100) * 100
-        return trade_price, round(trade_amount, 2)
+        return trade_price, round(trade_amount, 3)
 
     def __get_trade_sell_price_amount(self, p: Portfolio, trade_code, trade_date):
-        trade_amount = get_trade_amount_last_transaction_record(p.transaction_local_ledger, trade_code)
-        if (trade_amount is None):
+        current_available_amount = get_trade_amount_last_transaction_record(p.transaction_local_ledger, trade_code)
+        if (current_available_amount is None or current_available_amount <= 0):
             return None, None
         trade_price = get_trade_qfq_price(trade_date, trade_code)
-        return trade_price, trade_amount
+        return trade_price, current_available_amount
 
     def __generate_funding_with_funding_strategy(self, p: Portfolio, trade_date):
         """Generate funding record with funding strategy by given trade date, only robot need do this
@@ -61,10 +64,11 @@ class DMATraderV01(ITrader):
             with open(p.funding_local_ledger, 'w', newline='') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=FUNDING_LEDGER_CSV_HEADER)
                 writer.writeheader()
-        try:
-            update_funding_ledger({'trade_date': p.create_date, 'fund_amount': self.__init_fund_amount_per_portfolio, 'fund_type': 'in'}, p.funding_local_ledger, True)
-        except Exception as e:
-            print(e)
+            try:
+                # only execute once
+                update_funding_ledger({'trade_date': p.create_date, 'fund_amount': self.__init_fund_amount_per_portfolio, 'fund_type': 'in'}, p.funding_local_ledger, True)
+            except Exception as e:
+                print(e)
 
     def __generate_transaction_with_strategy_signal(self, p: Portfolio, trade_date):
         """Generate transaction record with strategy (following the double MA strategy signals stored in base.db) by given trade date, only robot need do this

@@ -19,7 +19,7 @@ def __get_trade_target_last_transaction_record(transaction_ledger_path, trade_co
 
 def get_trade_qfq_price(trade_date, trade_code):
     data = trade_client.get_qfq_close_price(trade_code, trade_date, trade_date)
-    return round(data['qfq'][0].item(), 2)
+    return round(data['qfq'][0].item(), 3)
 
 def get_current_available_funding(funding_ledger_path):
     with open(funding_ledger_path, 'r', newline='') as csvfile:
@@ -27,12 +27,12 @@ def get_current_available_funding(funding_ledger_path):
         data = list(rows)
         if (len(data) < 1):
             raise Exception('can not find available funding record in funding_ledger_path(%s)' % funding_ledger_path)
-        return data[-1]['trade_date'], round(float(data[-1]['current_available_amount']), 2)
+        return data[-1]['trade_date'], round(float(data[-1]['current_available_amount']), 3)
 
 def get_trade_amount_last_transaction_record(transaction_ledger_path, trade_code):
     r = __get_trade_target_last_transaction_record(transaction_ledger_path, trade_code)
     if (r is not None):
-        return round(float(r['trade_amount']), 2)
+        return round(float(r['current_available_amount']), 3)
 
 def get_last_trade_date(p: Portfolio):
     with open(p.transaction_local_ledger, 'r', newline='') as csvfile:
@@ -73,7 +73,7 @@ def update_funding_ledger(new_row, funding_ledger_path, is_init=False):
         update_current_available_amount = fund_amount
     with open(funding_ledger_path, 'a', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=FUNDING_LEDGER_CSV_HEADER)
-        writer.writerow({'trade_date': trade_date, 'fund_amount': str(fund_amount), 'fund_type': fund_type, 'current_available_amount': str(update_current_available_amount)})
+        writer.writerow({'trade_date': trade_date, 'fund_amount': str(round(fund_amount, 3)), 'fund_type': fund_type, 'current_available_amount': str(round(update_current_available_amount, 3))})
 
 def update_transaction_ledger(new_row, transaction_ledger_path):
     trade_date, trade_code, trade_name, trade_type, trade_amount, trade_price = itemgetter('trade_date', 'trade_code', 'trade_name', 'trade_type', 'trade_amount', 'trade_price')(new_row)
@@ -93,7 +93,7 @@ def update_transaction_ledger(new_row, transaction_ledger_path):
     if last_transaction is not None:
         if (trade_date_big(last_transaction['trade_date'], trade_date)):
             raise Exception('cannot update transaction ledger for portfolio, because trade_date is not valid, transaction_ledger_path is (%s), add row data is (%s)' % (transaction_ledger_path, new_row))
-        update_current_available_amount = round(float(last_transaction['current_available_amount']), 2) + trade_amount
+        update_current_available_amount = round(float(last_transaction['current_available_amount']), 3) + trade_amount
     else:
         if (trade_type == 'sell'):
             raise Exception('cannot update transaction ledger for portfolio, because can not find last transaction record, transaction_ledger_path is (%s), add row data is (%s)' % (transaction_ledger_path, new_row))

@@ -23,7 +23,7 @@ class Portfolio:
         self.funding_remote_ledger = self.portfolio_remote_base_path + 'funding_ledger.csv'
         self.portfolio_db = None
 
-    def __remove_local_files(self):
+    def __init_work_dir(self):
         if (exists(self.portfolio_db_local_path)):
             print('delete local files for portfolio(%s) of user(%s)' % (self.portfolio_name, self.u_name))
             try:
@@ -32,10 +32,12 @@ class Portfolio:
                 os.remove(self.funding_local_ledger)
             except Exception(e):
                 print(e)
+        else:
+            os.makedirs(self.portfolio_local_base_path, exist_ok=True)
 
     def start(self):
         print('====> start to process portfolio(%s) for user(%s) <====' % (self.portfolio_name, self.u_name))
-        self.__remove_local_files()
+        self.__init_work_dir()
         print('download the files from s3 to local for portfolio(%s) of user(%s)' % (self.portfolio_name, self.u_name))
         try:
             s3_client.download_file(S3_BUCKET_NAME, self.portfolio_db_remote_path, self.portfolio_db_local_path)
@@ -61,7 +63,6 @@ class Portfolio:
             s3_client.upload_file(self.portfolio_db_local_path, S3_BUCKET_NAME, self.portfolio_db_remote_path, ExtraArgs={'ACL': 'public-read'})
             s3_client.upload_file(self.transaction_local_ledger, S3_BUCKET_NAME, self.transaction_remote_ledger)
             s3_client.upload_file(self.funding_local_ledger, S3_BUCKET_NAME, self.funding_remote_ledger)
-            self.__remove_local_files()
         else:
             print('not found this portfolio(%s) data for user(%s), maybe something wrong happened...' % (self.portfolio_name, self.u_name))
         print('====> finish to process portfolio(%s) for user(%s) <====' % (self.portfolio_name, self.u_name))
