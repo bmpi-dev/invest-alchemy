@@ -19,7 +19,7 @@ Invest Alchemy is a trade assistant for A share stock market.
         - [x] Long ETF strategy robot trader
         - [x] All In strategy robot trader
         - [ ] Periodic Payment strategy robot trader
-   - Web
+  - Web
     - [ ] Re-Design web UI page
 - Improve
   - Notify
