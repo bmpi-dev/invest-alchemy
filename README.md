@@ -10,7 +10,7 @@ Invest Alchemy is a trade assistant for A share stock market.
   - Market Heat Meter
     - [ ] Index Historical P/E Ratio
   - Trading Portfolio Calculation
-    - [ ] Transaction/Funding/Holding/NetValue/Performance Ledger
+    - [ ] Transaction/Funding/Holding/NetValue/Performance Ledger 🚩
   - Trader
     - User
       - [ ] User portfolio calculation support
