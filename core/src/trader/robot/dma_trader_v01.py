@@ -46,13 +46,6 @@ class DMATraderV01(ITrader):
             trade_amount = int(current_available_funding / trade_price / 100) * 100
         return trade_price, round(trade_amount, 3)
 
-    def __get_trade_sell_price_amount(self, p: Portfolio, trade_code, trade_date):
-        current_available_amount = get_trade_amount_last_transaction_record(p.transaction_local_ledger, trade_code)
-        if (current_available_amount is None or current_available_amount <= 0):
-            return None, None
-        trade_price = get_trade_qfq_price(trade_date, trade_code)
-        return trade_price, current_available_amount
-
     def __generate_funding_with_funding_strategy(self, p: Portfolio, trade_date):
         """Generate funding record with funding strategy by given trade date, only robot need do this
 
@@ -108,7 +101,7 @@ class DMATraderV01(ITrader):
                 try:
                     code = sell.trade_code
                     name = sell.trade_name
-                    trade_price, trade_amount = self.__get_trade_sell_price_amount(p, code, trade_date)
+                    trade_price, trade_amount = get_trade_sell_price_amount(p, code, trade_date)
                     if (trade_price is None or trade_amount is None):
                         continue
                     update_funding_ledger({'trade_date': trade_date, 'fund_amount': trade_price * trade_amount, 'fund_type': 'sell'}, p.funding_local_ledger)

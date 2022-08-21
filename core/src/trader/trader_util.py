@@ -34,6 +34,13 @@ def get_trade_amount_last_transaction_record(transaction_ledger_path, trade_code
     if (r is not None):
         return round(float(r['current_available_amount']), 3)
 
+def get_trade_sell_price_amount(p: Portfolio, trade_code, trade_date):
+        current_available_amount = get_trade_amount_last_transaction_record(p.transaction_local_ledger, trade_code)
+        if (current_available_amount is None or current_available_amount <= 0):
+            return None, None
+        trade_price = get_trade_qfq_price(trade_date, trade_code)
+        return trade_price, current_available_amount
+
 def get_last_trade_date(p: Portfolio):
     with open(p.transaction_local_ledger, 'r', newline='') as csvfile:
         rows = csv.DictReader(csvfile)
