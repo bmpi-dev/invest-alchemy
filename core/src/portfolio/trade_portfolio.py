@@ -5,6 +5,7 @@ import botocore
 from constants import S3_BUCKET_NAME
 from peewee import SqliteDatabase
 import os
+from portfolio.portfolio_db import *
 
 class Portfolio:
     """Trade Portfolio class"""
@@ -21,7 +22,6 @@ class Portfolio:
         self.transaction_remote_ledger = self.portfolio_remote_base_path + 'transaction_ledger.csv'
         self.funding_local_ledger = self.portfolio_local_base_path + 'funding_ledger.csv'
         self.funding_remote_ledger = self.portfolio_remote_base_path + 'funding_ledger.csv'
-        self.portfolio_db = None
 
     def __init_work_dir(self):
         if (exists(self.portfolio_db_local_path)):
@@ -49,16 +49,13 @@ class Portfolio:
                 os.makedirs(os.path.dirname(self.portfolio_local_base_path), exist_ok=True)
             else:
                 print(e)
-        if (self.portfolio_db is None):
-            print('start connect database for portfolio(%s) ot user(%s)' % (self.portfolio_name, self.u_name))
-            self.portfolio_db = SqliteDatabase(self.portfolio_db_local_path)
-            self.portfolio_db.connect()
+        print('start connect database for portfolio(%s) ot user(%s)' % (self.portfolio_name, self.u_name))
+        re_bind_db(self.portfolio_db_local_path)
 
     def finish(self):
         if (exists(self.portfolio_db_local_path)):
             print('start disconnect database for portfolio(%s) ot user(%s)' % (self.portfolio_name, self.u_name))
-            if (self.portfolio_db is None):
-                self.portfolio_db.close()
+            disconnect_db()
             print('upload the files to s3 for portfolio(%s) of user(%s)' % (self.portfolio_name, self.u_name))
             s3_client.upload_file(self.portfolio_db_local_path, S3_BUCKET_NAME, self.portfolio_db_remote_path, ExtraArgs={'ACL': 'public-read'})
             s3_client.upload_file(self.transaction_local_ledger, S3_BUCKET_NAME, self.transaction_remote_ledger)
