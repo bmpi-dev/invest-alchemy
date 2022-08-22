@@ -5,11 +5,12 @@ Invest Alchemy is a trade assistant for A share stock market.
 ## TODO
 
 - Feature
-  - Stategy
+  - Strategy
     - [x] ETF Double MA
-  - Market Heat Meter
+  - Market
     - [ ] Index Historical P/E Ratio
-  - Trading Portfolio Calculation
+    - [ ] Base database store popular baseline (10%) and index performance (000905/000300/399006/HSI/IXIC/INX)
+  - Portfolio
     - [ ] Transaction/Funding/Holding/NetValue/Performance Ledger 🚩
   - Trader
     - User
@@ -19,19 +20,21 @@ Invest Alchemy is a trade assistant for A share stock market.
         - [x] Long ETF strategy robot trader
         - [x] All In strategy robot trader
         - [ ] Periodic Payment strategy robot trader
-  - Web
+  - Web UI
     - [ ] Re-Design web UI page
-- Improve
   - Notify
     - [x] Email
     - [x] Telegram bot/channel
     - [ ] Show different strategy signal (daily)
     - [ ] Show different trade robot portfolio performance report (weekly)
+
+- Arch Improve
   - Storage
     - [x] Add database schema migration tool
     - [x] SQLite DB backup to AWS S3
     - [x] Trade data store in SQLite DB
     - [ ] Base Database migrate from SQLite to Supabase(PostgreSQL)
+
 - Bug Fix
   - [x] Trading signals error when double ma price are same
 
