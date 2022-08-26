@@ -25,6 +25,7 @@ def startup():
 
     if p.is_alive():
         print('do db migration timeout error...\n')
+        p.terminate()
     else:
         print('done db migration')
 
