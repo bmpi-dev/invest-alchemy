@@ -3,9 +3,9 @@ from os.path import exists
 from storage import s3_client
 import botocore
 from constants import S3_BUCKET_NAME
-from peewee import SqliteDatabase
-import os
+import os, sys, csv
 from portfolio.portfolio_db import *
+from util.common import *
 
 class Portfolio:
     """Trade Portfolio class"""
@@ -70,7 +70,34 @@ class Portfolio:
         :param trade_date: trade date
         :return: None
         """
-        pass
+        try:
+            last_record_db = TransactionLedgerModel.select().order_by(TransactionLedgerModel.trade_date.desc()).get()
+            print('last_record_db: %s' % last_record_db)
+            last_trade_date_db = last_record_db.trade_date
+        except DoesNotExist:
+            last_trade_date_db = self.create_date
+        with open(self.transaction_local_ledger, 'r', newline='') as csvfile:
+            rows = csv.DictReader(csvfile)
+            for row in rows:
+                trade_date_csv = row['trade_date']
+                if (trade_date_big(trade_date_csv, last_trade_date_db)):
+                    print('update transaction ledger of portfolio(%s) for user(%s), trade date: %s...' % (self.portfolio_name, self.u_name, trade_date_csv))
+                    trade_amount=round(float(row['trade_amount']), 3)
+                    trade_price=round(float(row['trade_price']), 3)
+                    trade_money=round(trade_amount * trade_price, 3)
+                    current_available_amount=round(float(row['current_available_amount']), 3)
+                    save_db = TransactionLedgerModel(trade_date=trade_date_csv, \
+                                                    trade_code=row['trade_code'], \
+                                                    trade_name=row['trade_name'], \
+                                                    trade_type=row['trade_type'], \
+                                                    trade_amount=trade_amount, \
+                                                    current_available_amount=current_available_amount, \
+                                                    trade_price=trade_price, \
+                                                    trade_money=trade_money, \
+                                                    handling_fees=0.0, \
+                                                    funding_percentage=0.0, \
+                                                    )
+                    save_db.save()
 
     def __update_funding_ledger(self, trade_date):
         """Update funding ledger on the given trade date
@@ -78,7 +105,10 @@ class Portfolio:
         :param trade_date: trade date
         :return: None
         """
+        # TODO: implement
+        # 在数据库按时间排序找到最近的交易日期，之后遍历交易台账csv，对比日期大小，找出日期大的数据存入数据库中
         pass
+        # sys.exit()
 
     def __update_holding_ledger(self, trade_date):
         """Update holding ledger on the given trade date
@@ -107,3 +137,4 @@ class Portfolio:
         self.__update_holding_ledger(trade_date)
         # TODO: calculate net value ledger
         print('calculate net value ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, trade_date))
+        self.__update_performance_ledger(trade_date)
