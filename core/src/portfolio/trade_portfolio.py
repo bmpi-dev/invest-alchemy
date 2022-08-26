@@ -72,7 +72,6 @@ class Portfolio:
         """
         try:
             last_record_db = TransactionLedgerModel.select().order_by(TransactionLedgerModel.trade_date.desc()).get()
-            print('last_record_db: %s' % last_record_db)
             last_trade_date_db = last_record_db.trade_date
         except DoesNotExist:
             last_trade_date_db = self.create_date
@@ -95,8 +94,7 @@ class Portfolio:
                                                     trade_price=trade_price, \
                                                     trade_money=trade_money, \
                                                     handling_fees=0.0, \
-                                                    funding_percentage=0.0, \
-                                                    )
+                                                    funding_percentage=0.0)
                     save_db.save()
 
     def __update_funding_ledger(self, trade_date):
@@ -105,10 +103,24 @@ class Portfolio:
         :param trade_date: trade date
         :return: None
         """
-        # TODO: implement
-        # 在数据库按时间排序找到最近的交易日期，之后遍历交易台账csv，对比日期大小，找出日期大的数据存入数据库中
-        pass
-        # sys.exit()
+        try:
+            last_record_db = FundingLedgerModel.select().order_by(FundingLedgerModel.trade_date.desc()).get()
+            last_trade_date_db = last_record_db.trade_date
+        except DoesNotExist:
+            last_trade_date_db = self.create_date
+        with open(self.funding_local_ledger, 'r', newline='') as csvfile:
+            rows = csv.DictReader(csvfile)
+            for row in rows:
+                trade_date_csv = row['trade_date']
+                if (trade_date_big(trade_date_csv, last_trade_date_db)):
+                    print('update funding ledger of portfolio(%s) for user(%s), trade date: %s...' % (self.portfolio_name, self.u_name, trade_date_csv))
+                    fund_amount=round(float(row['fund_amount']), 3)
+                    current_available_amount=round(float(row['current_available_amount']), 3)
+                    save_db = FundingLedgerModel(trade_date=trade_date_csv, \
+                                                   fund_amount=fund_amount, \
+                                                   current_available_amount=current_available_amount, \
+                                                   fund_type=row['fund_type'])
+                    save_db.save()
 
     def __update_holding_ledger(self, trade_date):
         """Update holding ledger on the given trade date
@@ -117,6 +129,7 @@ class Portfolio:
         :return: None
         """
         pass
+        # sys.exit()
 
     def __update_performance_ledger(self, trade_date):
         """Update portfolio performance ledger on the given trade date
