@@ -67,18 +67,19 @@ class NetValueLedgerModel(PortfolioBaseModel):
         primary_key = CompositeKey('trade_date')
 
 class PerformanceLedgerModel(PortfolioBaseModel):
-    change_percentage = FloatField()
-    change_percentage = FloatField()
-    retracement_range = FloatField()
+    change_percentage = FloatField() # daily change percentage
+    retracement_range = FloatField() # drawback percentage
+    max_retracement_range = FloatField() # max drawback percentage in history
     days_of_continuous_loss = IntegerField()
+    max_days_of_continuous_loss = IntegerField()
     days_of_win = IntegerField()
     days_of_loss = IntegerField()
     run_days = IntegerField()
     total_trade_count = IntegerField()
     cagr = FloatField()
     sharpe_ratio = FloatField()
-    hold_risk_count = IntegerField()
-    buy_risk_count = IntegerField()
+    hold_risk_count = IntegerField() # reserved
+    buy_risk_count = IntegerField() # reserved
 
     class Meta:
         table_name = 'portfolio_performance_ledger'

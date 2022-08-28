@@ -8,7 +8,8 @@ from portfolio.portfolio_db import *
 from util.common import *
 from datetime import datetime, timedelta
 from constants import TRADE_DATE_FORMAT_STR
-from util.common import get_trade_close_price, get_qfq_close_price
+from util.common import get_trade_close_price, get_qfq_close_price, CAGR, SHARPE_RATIO
+import pandas as pd
 
 class Portfolio:
     """Trade Portfolio class"""
@@ -302,7 +303,80 @@ class Portfolio:
         :param trade_date: trade date
         :return: None
         """
-        pass
+        the_day_before_portfolio_create = datetime.strptime(self.create_date, TRADE_DATE_FORMAT_STR) - timedelta(1)
+        last_trade_date_db = the_day_before_portfolio_create.strftime(TRADE_DATE_FORMAT_STR)
+        try:
+            last_record_db = PerformanceLedgerModel.select().order_by(PerformanceLedgerModel.trade_date.desc()).get()
+            last_trade_date_db = last_record_db.trade_date
+        except DoesNotExist:
+            print('no performance record, init it...')
+            PerformanceLedgerModel.insert(trade_date=last_trade_date_db, \
+                                        change_percentage=0.0, \
+                                        retracement_range=0.0, \
+                                        max_retracement_range=0.0, \
+                                        days_of_continuous_loss=1.0, \
+                                        max_days_of_continuous_loss=0, \
+                                        days_of_win=0, \
+                                        days_of_loss=0, \
+                                        run_days=0, \
+                                        total_trade_count=0, \
+                                        cagr=0.0, \
+                                        sharpe_ratio=0.0, \
+                                        hold_risk_count=0, \
+                                        buy_risk_count=0).on_conflict_replace().execute()
+
+        day_before_start_date = datetime.strptime(last_trade_date_db, TRADE_DATE_FORMAT_STR)
+        start_date = day_before_start_date + timedelta(1)
+        end_date = datetime.strptime(trade_date, TRADE_DATE_FORMAT_STR)
+        days = (end_date - day_before_start_date).days
+
+        if (days <= 0):
+            return
+        
+        for i in range(days):
+            _trade_date = start_date + timedelta(i)
+            _day_before_trade_date_str = (_trade_date - timedelta(1)).strftime(TRADE_DATE_FORMAT_STR)
+            _trade_date_str = _trade_date.strftime(TRADE_DATE_FORMAT_STR)
+
+            print('calculate performance ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, _trade_date_str))
+
+            last_net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _day_before_trade_date_str).get()
+            current_net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _trade_date_str).get()
+            last_performance = PerformanceLedgerModel.select().where(PerformanceLedgerModel.trade_date == _day_before_trade_date_str).get()
+            performances = PerformanceLedgerModel.select().where(PerformanceLedgerModel.trade_date <= _day_before_trade_date_str)
+
+            max_net_value = NetValueLedgerModel.select(fn.MAX(NetValueLedgerModel.net_value)).where(NetValueLedgerModel.trade_date <= _trade_date_str).scalar()
+            max_retracement_range_history = PerformanceLedgerModel.select(fn.MAX(PerformanceLedgerModel.retracement_range)).where(PerformanceLedgerModel.trade_date <= _trade_date_str).scalar()
+            max_days_of_continuous_loss_history = PerformanceLedgerModel.select(fn.MAX(PerformanceLedgerModel.days_of_continuous_loss)).where(PerformanceLedgerModel.trade_date <= _trade_date_str).scalar()
+            days_of_win_history = PerformanceLedgerModel.select(fn.COUNT(PerformanceLedgerModel.trade_date)).where(PerformanceLedgerModel.trade_date <= _trade_date_str, PerformanceLedgerModel.change_percentage > 0).scalar()
+            days_of_loss_history = PerformanceLedgerModel.select(fn.COUNT(PerformanceLedgerModel.trade_date)).where(PerformanceLedgerModel.trade_date <= _trade_date_str, PerformanceLedgerModel.change_percentage < 0).scalar()
+            total_trade_count = TransactionLedgerModel.select(fn.COUNT(TransactionLedgerModel.trade_date)).where(TransactionLedgerModel.trade_date <= _trade_date_str, TransactionLedgerModel.trade_type == 'sell').scalar()
+
+            change_percentage = round((current_net_value.net_value - last_net_value.net_value) / last_net_value.net_value, 3)
+            retracement_range = round((current_net_value.net_value - max_net_value) / max_net_value, 3)
+            max_retracement_range = retracement_range if retracement_range < max_retracement_range_history else max_retracement_range_history
+            days_of_continuous_loss = last_performance.days_of_continuous_loss + 1 if change_percentage < 0 else 0
+            max_days_of_continuous_loss = days_of_continuous_loss if days_of_continuous_loss > max_days_of_continuous_loss_history else max_days_of_continuous_loss_history
+            days_of_win = days_of_win_history + 1 if change_percentage > 0 else days_of_win_history
+            days_of_loss = days_of_loss_history + 1 if change_percentage < 0 else days_of_loss_history
+            run_days = last_performance.run_days + 1
+            cagr = round(CAGR(1.0, current_net_value.net_value, float(run_days/365)), 3)
+            sharpe_ratio = SHARPE_RATIO(pd.DataFrame(list(performances.dicts()))['change_percentage']) # not contain current performance data because it has not yet saved in database
+
+            PerformanceLedgerModel.insert(trade_date=_trade_date_str, \
+                                        change_percentage=change_percentage, \
+                                        retracement_range=retracement_range, \
+                                        max_retracement_range=max_retracement_range, \
+                                        days_of_continuous_loss=days_of_continuous_loss, \
+                                        max_days_of_continuous_loss=max_days_of_continuous_loss, \
+                                        days_of_win=days_of_win, \
+                                        days_of_loss=days_of_loss, \
+                                        run_days=run_days, \
+                                        total_trade_count=total_trade_count, \
+                                        cagr=cagr, \
+                                        sharpe_ratio=sharpe_ratio, \
+                                        hold_risk_count=0, \
+                                        buy_risk_count=0).on_conflict_replace().execute()
 
     def update_net_value(self, trade_date):
         self.__update_transaction_ledger(trade_date)
