@@ -11,7 +11,7 @@ Invest Alchemy is a trade assistant for A share stock market.
     - [ ] Index Historical P/E Ratio
     - [ ] Base database store baseline (10%) and popular indexs performance (000905/000300/399006/HSI/IXIC/INX)
   - Portfolio
-    - [ ] Transaction/Funding/Holding/NetValue/Performance Ledger 🚩
+    - [x] Transaction/Funding/Holding/NetValue/Performance Ledger 🚩
   - Trader
     - User
       - [ ] User portfolio calculation support
