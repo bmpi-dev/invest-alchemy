@@ -30,7 +30,7 @@ class DMATraderV02(ITrader):
             p.start()
             self.__generate_funding_with_funding_strategy(p, trade_date)
             self.__generate_transaction_with_strategy_signal(p, trade_date)
-            p.update_net_value_ledger(trade_date)
+            p.update_net_value(trade_date)
             p.finish()
 
     def __get_trade_buy_price_amount_with_funding_strategy(self, p: Portfolio, trade_code, trade_date):

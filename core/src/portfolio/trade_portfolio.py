@@ -77,7 +77,9 @@ class Portfolio:
             last_record_db = TransactionLedgerModel.select().order_by(TransactionLedgerModel.trade_date.desc()).get()
             last_trade_date_db = last_record_db.trade_date
         except DoesNotExist:
-            last_trade_date_db = self.create_date
+            # fix missing record if first funding transcation happened on the create date of the portfolio, because it uses trade_date_big function to determin if the funding ledger needs to update
+            the_day_before_portfolio_create = datetime.strptime(self.create_date, TRADE_DATE_FORMAT_STR) - timedelta(1)
+            last_trade_date_db = the_day_before_portfolio_create.strftime(TRADE_DATE_FORMAT_STR)
         with open(self.transaction_local_ledger, 'r', newline='') as csvfile:
             rows = csv.DictReader(csvfile)
             for row in rows:
@@ -110,7 +112,9 @@ class Portfolio:
             last_record_db = FundingLedgerModel.select().order_by(FundingLedgerModel.trade_date.desc()).get()
             last_trade_date_db = last_record_db.trade_date
         except DoesNotExist:
-            last_trade_date_db = self.create_date
+            # fix missing record if first funding transcation happened on the create date of the portfolio, because it uses trade_date_big function to determin if the funding ledger needs to update
+            the_day_before_portfolio_create = datetime.strptime(self.create_date, TRADE_DATE_FORMAT_STR) - timedelta(1)
+            last_trade_date_db = the_day_before_portfolio_create.strftime(TRADE_DATE_FORMAT_STR)
         with open(self.funding_local_ledger, 'r', newline='') as csvfile:
             rows = csv.DictReader(csvfile)
             for row in rows:
@@ -120,9 +124,9 @@ class Portfolio:
                     fund_amount=round(float(row['fund_amount']), 3)
                     current_available_amount=round(float(row['current_available_amount']), 3)
                     save_db = FundingLedgerModel(trade_date=trade_date_csv, \
-                                                   fund_amount=fund_amount, \
-                                                   current_available_amount=current_available_amount, \
-                                                   fund_type=row['fund_type'])
+                                                fund_amount=fund_amount, \
+                                                current_available_amount=current_available_amount, \
+                                                fund_type=row['fund_type'])
                     save_db.save()
 
     def __update_holding_ledger(self, trade_date):
@@ -229,6 +233,16 @@ class Portfolio:
                                               market_value=hold.market_value, \
                                               position_percentage=hold.position_percentage).on_conflict_replace().execute()
 
+    def __update_net_value_ledger(self, trade_date):
+        """Update portfolio net value ledger on the given trade date
+
+        :param trade_date: trade date
+        :return: None
+        """
+        print('calculate net value ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, trade_date))
+
+        # TODO: need to implement
+    
     def __update_performance_ledger(self, trade_date):
         """Update portfolio performance ledger on the given trade date
 
@@ -237,15 +251,9 @@ class Portfolio:
         """
         pass
 
-    def update_net_value_ledger(self, trade_date):
-        """Update portfolio net value ledger on the given trade date
-
-        :param trade_date: trade date
-        :return: None
-        """
+    def update_net_value(self, trade_date):
         self.__update_transaction_ledger(trade_date)
         self.__update_funding_ledger(trade_date)
         self.__update_holding_ledger(trade_date)
-        # TODO: calculate net value ledger
-        print('calculate net value ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, trade_date))
+        self.__update_net_value_ledger(trade_date)
         self.__update_performance_ledger(trade_date)
