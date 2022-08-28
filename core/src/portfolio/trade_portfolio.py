@@ -346,7 +346,7 @@ class Portfolio:
             performances = PerformanceLedgerModel.select().where(PerformanceLedgerModel.trade_date <= _day_before_trade_date_str)
 
             max_net_value = NetValueLedgerModel.select(fn.MAX(NetValueLedgerModel.net_value)).where(NetValueLedgerModel.trade_date <= _trade_date_str).scalar()
-            max_retracement_range_history = PerformanceLedgerModel.select(fn.MAX(PerformanceLedgerModel.retracement_range)).where(PerformanceLedgerModel.trade_date <= _trade_date_str).scalar()
+            max_retracement_range_history = PerformanceLedgerModel.select(fn.MIN(PerformanceLedgerModel.max_retracement_range)).where(PerformanceLedgerModel.trade_date <= _trade_date_str).scalar() # value is minus, so select the MIN
             max_days_of_continuous_loss_history = PerformanceLedgerModel.select(fn.MAX(PerformanceLedgerModel.days_of_continuous_loss)).where(PerformanceLedgerModel.trade_date <= _trade_date_str).scalar()
             days_of_win_history = PerformanceLedgerModel.select(fn.COUNT(PerformanceLedgerModel.trade_date)).where(PerformanceLedgerModel.trade_date <= _trade_date_str, PerformanceLedgerModel.change_percentage > 0).scalar()
             days_of_loss_history = PerformanceLedgerModel.select(fn.COUNT(PerformanceLedgerModel.trade_date)).where(PerformanceLedgerModel.trade_date <= _trade_date_str, PerformanceLedgerModel.change_percentage < 0).scalar()
