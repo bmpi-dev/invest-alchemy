@@ -11,7 +11,7 @@ Invest Alchemy is a trade assistant for A share stock market.
     - [ ] Index Historical P/E Ratio
     - [ ] Base database store baseline (10%) and popular indexs performance (000905/000300/399006/HSI/IXIC/INX)
   - Portfolio
-    - [x] Transaction/Funding/Holding/NetValue/Performance Ledger 🚩
+    - [x] Transaction/Funding/Holding/NetValue/Performance Ledger
   - Trader
     - User
       - [ ] User portfolio calculation support
@@ -33,7 +33,7 @@ Invest Alchemy is a trade assistant for A share stock market.
     - [x] Add database schema migration tool
     - [x] SQLite DB backup to AWS S3
     - [x] Trade data store in SQLite DB
-    - [ ] Base Database migrate from SQLite to Supabase(PostgreSQL)
+    - [ ] Base Database migrate from SQLite to Supabase(PostgreSQL) 🚩
 
 - Bug Fix
   - [x] Trading signals error when double ma price are same
