@@ -239,9 +239,62 @@ class Portfolio:
         :param trade_date: trade date
         :return: None
         """
-        print('calculate net value ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, trade_date))
+        the_day_before_portfolio_create = datetime.strptime(self.create_date, TRADE_DATE_FORMAT_STR) - timedelta(1)
+        last_trade_date_db = the_day_before_portfolio_create.strftime(TRADE_DATE_FORMAT_STR)
+        try:
+            last_record_db = NetValueLedgerModel.select().order_by(NetValueLedgerModel.trade_date.desc()).get()
+            last_trade_date_db = last_record_db.trade_date
+        except DoesNotExist:
+            print('no net value, init it...')
+            NetValueLedgerModel.insert(trade_date=last_trade_date_db, \
+                                       net_value=1.0, \
+                                       total_shares=0.0, \
+                                       total_assets=0.0, \
+                                       hold_assets=0.0, \
+                                       fund_balance=0.0).on_conflict_replace().execute()
 
-        # TODO: need to implement
+        day_before_start_date = datetime.strptime(last_trade_date_db, TRADE_DATE_FORMAT_STR)
+        start_date = day_before_start_date + timedelta(1)
+        end_date = datetime.strptime(trade_date, TRADE_DATE_FORMAT_STR)
+        days = (end_date - day_before_start_date).days
+
+        if (days <= 0):
+            return
+        
+        for i in range(days):
+            _trade_date = start_date + timedelta(i)
+            _day_before_trade_date_str = (_trade_date - timedelta(1)).strftime(TRADE_DATE_FORMAT_STR)
+            _trade_date_str = _trade_date.strftime(TRADE_DATE_FORMAT_STR)
+
+            print('calculate net value ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, _trade_date_str))
+
+            last_net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _day_before_trade_date_str).get()
+            current_fundings = FundingLedgerModel.select().where(FundingLedgerModel.trade_date == _trade_date_str)
+            funding_change = 0.0
+            trade_money_change = 0.0
+            for funding in current_fundings:
+                if (funding.fund_type == 'in' or funding.fund_type == 'out'):
+                    funding_change = funding_change + funding.fund_amount
+                if (funding.fund_type == 'buy' or funding.fund_type == 'sell'):
+                    trade_money_change = trade_money_change + funding.fund_amount
+            shares_change = round(funding_change / last_net_value.net_value, 3)
+
+            current_hold_assets = 0.0
+            current_holds = HoldingLedgerModel.select().where(HoldingLedgerModel.trade_date == _trade_date_str)
+            for hold in current_holds:
+                current_hold_assets = current_hold_assets + hold.market_value
+
+            current_total_shares = last_net_value.total_shares + shares_change
+            current_fund_balance = last_net_value.fund_balance + funding_change + trade_money_change
+            current_total_assets = round(current_hold_assets + current_fund_balance, 3)
+            current_net_value = round(current_total_assets / current_total_shares, 3)
+            
+            NetValueLedgerModel.insert(trade_date=_trade_date_str, \
+                                       net_value=current_net_value, \
+                                       total_shares=current_total_shares, \
+                                       total_assets=current_total_assets, \
+                                       hold_assets=current_hold_assets, \
+                                       fund_balance=current_fund_balance).on_conflict_replace().execute()
     
     def __update_performance_ledger(self, trade_date):
         """Update portfolio performance ledger on the given trade date
