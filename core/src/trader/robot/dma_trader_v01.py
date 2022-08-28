@@ -4,6 +4,7 @@ from constants import TRADE_DATE_FORMAT_STR
 from typing import List
 from db import DmaTradeSignalModel
 from trader.trader_util import *
+from util.common import get_trade_close_price, get_trade_date_range
 from strategy.trade_signal import TradeSignalState
 import csv
 import traceback

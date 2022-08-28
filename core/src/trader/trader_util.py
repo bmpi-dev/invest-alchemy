@@ -1,13 +1,11 @@
 import csv
 from os.path import exists
 from operator import itemgetter
-from client.ts_client import TSClient
 from portfolio.trade_portfolio import Portfolio
-from util.common import trade_date_big
+from util.common import trade_date_big, get_trade_close_price
 
 FUNDING_LEDGER_CSV_HEADER = ['trade_date', 'fund_amount', 'fund_type', 'current_available_amount']
 TRANSACTION_LEDGER_CSV_HEADER = ['trade_date', 'trade_code', 'trade_name', 'trade_type', 'trade_amount', 'trade_price', 'current_available_amount']
-trade_client = TSClient()
 
 def __get_trade_target_last_transaction_record(transaction_ledger_path, trade_code):
     with open(transaction_ledger_path, 'r', newline='') as csvfile:
@@ -16,10 +14,6 @@ def __get_trade_target_last_transaction_record(transaction_ledger_path, trade_co
         for r in reversed(data):
             if (r['trade_code'] == trade_code):
                 return r
-
-def get_trade_close_price(trade_date, trade_code):
-    data = trade_client.get_qfq_close_price(trade_code, trade_date, trade_date)
-    return round(data['close'][0].item(), 3)
 
 def get_current_available_funding(funding_ledger_path):
     with open(funding_ledger_path, 'r', newline='') as csvfile:
@@ -48,9 +42,6 @@ def get_last_trade_date(p: Portfolio):
         if (len(data) > 0):
             return data[-1]['trade_date']
     return p.create_date
-
-def get_trade_date_range(start, end):
-    return trade_client.get_a_share_trade_date(start, end)
 
 def update_funding_ledger(new_row, funding_ledger_path, is_init=False):
     trade_date, fund_amount, fund_type = itemgetter('trade_date', 'fund_amount', 'fund_type')(new_row)

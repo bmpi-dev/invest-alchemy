@@ -6,6 +6,9 @@ from constants import S3_BUCKET_NAME
 import os, sys, csv
 from portfolio.portfolio_db import *
 from util.common import *
+from datetime import datetime, timedelta
+from constants import TRADE_DATE_FORMAT_STR
+from util.common import get_trade_close_price, get_qfq_close_price
 
 class Portfolio:
     """Trade Portfolio class"""
@@ -128,8 +131,103 @@ class Portfolio:
         :param trade_date: trade date
         :return: None
         """
-        pass
-        # sys.exit()
+        last_trade_date_db = self.create_date
+        try:
+            last_record_db = HoldingLedgerModel.select().order_by(HoldingLedgerModel.trade_date.desc()).get()
+            last_trade_date_db = last_record_db.trade_date
+        except DoesNotExist:
+            # init holding ledger with first transaction records
+            print('no holding, init it with first transaction records')
+            try:
+                first_transaction = TransactionLedgerModel.select().order_by(TransactionLedgerModel.trade_date.asc()).get()
+                first_transaction_date = first_transaction.trade_date
+                first_transactions = TransactionLedgerModel.select().where(TransactionLedgerModel.trade_date == first_transaction_date)
+                for transaction in first_transactions:
+                    if (transaction.current_available_amount > 0):
+                        close_price = get_trade_close_price(first_transaction_date, transaction.trade_code)
+                        market_value = transaction.current_available_amount * close_price
+                        HoldingLedgerModel.insert(trade_date=first_transaction_date, \
+                                                  trade_code=transaction.trade_code, \
+                                                  trade_name=transaction.trade_name, \
+                                                  hold_amount=transaction.current_available_amount, \
+                                                  close_price=close_price, \
+                                                  market_value=market_value, \
+                                                  position_percentage=0.0).on_conflict_replace().execute()
+                last_trade_date_db = first_transaction_date
+            except DoesNotExist:
+                return
+        
+        day_before_start_date = datetime.strptime(last_trade_date_db, TRADE_DATE_FORMAT_STR)
+        start_date = day_before_start_date + timedelta(1)
+        end_date = datetime.strptime(trade_date, TRADE_DATE_FORMAT_STR)
+        days = (end_date - day_before_start_date).days
+
+        if (days <= 0):
+            return
+        
+        for i in range(days):
+            _trade_date = start_date + timedelta(i)
+            _day_before_trade_date_str = (_trade_date - timedelta(1)).strftime(TRADE_DATE_FORMAT_STR)
+            _trade_date_str = _trade_date.strftime(TRADE_DATE_FORMAT_STR)
+
+            print('update holding ledger of portfolio(%s) for user(%s), trade date: %s...' % (self.portfolio_name, self.u_name, _trade_date_str))
+
+            last_holdings = HoldingLedgerModel.select().where(HoldingLedgerModel.trade_date == _day_before_trade_date_str)
+            transaction_records = TransactionLedgerModel.select().where(TransactionLedgerModel.trade_date == _trade_date_str)
+            # calculate current holdings postion
+            current_holds = []
+            for holding in last_holdings:
+                print('holding: %s' % holding.trade_code)
+                current_holds.append(HoldingLedgerModel(trade_date=_trade_date_str, \
+                                                        trade_code=holding.trade_code, \
+                                                        trade_name=holding.trade_name, \
+                                                        hold_amount=holding.hold_amount, \
+                                                        close_price=holding.close_price, \
+                                                        market_value=holding.market_value, \
+                                                        position_percentage=0.0))
+            for transaction in transaction_records:
+                print('transaction db id: %d, code: %s, trade type: %s' % (transaction.id, transaction.trade_code, transaction.trade_type))
+                is_new = True
+                for holding in current_holds:
+                    if (transaction.trade_code == holding.trade_code):
+                        holding.hold_amount = holding.hold_amount + transaction.trade_amount
+                        is_new = False
+                if (is_new):
+                    if (transaction.trade_amount > 0):
+                        current_holds.append(HoldingLedgerModel(trade_date=_trade_date_str, \
+                                                                trade_code=transaction.trade_code, \
+                                                                trade_name=transaction.trade_name, \
+                                                                hold_amount=transaction.trade_amount, \
+                                                                close_price=transaction.trade_price, \
+                                                                market_value=transaction.trade_money, \
+                                                                position_percentage=0.0))
+                    else:
+                        raise Exception('process holding ledger error for portfolio(%s) of user(%s), because no holding but have a sell transaction record(DB id is %s)!' % (self.portfolio_name, self.u_name, transaction))
+            
+            for hold in current_holds:
+                try:
+                    # it musts get 15 days price data for calculating the split-adjusted share prices, because TSClient can not give data on non-trading date, so we need get price data on the trade day before the current trade day, 15 days is enough for A share stock.
+                    price_data = get_qfq_close_price(hold.trade_code, (_trade_date - timedelta(15)).strftime(TRADE_DATE_FORMAT_STR), _trade_date_str)
+                    close_price = round(float(price_data['close'].iloc[-1]), 3)
+                    hold.close_price = close_price
+                    hold.market_value = round(hold.close_price * hold.hold_amount, 3)
+                    adj_factor = float(price_data['adj_factor'].iloc[-1] / price_data['adj_factor'].iloc[-2])
+                    if (adj_factor != 1.0):
+                        print('process split-adjusted share prices case: holding code(%s) with trade date(%s), found adj_factor(%d) for portfolio(%s) of user(%s)' % (hold.trade_code, _trade_date_str, adj_factor, self.portfolio_name, self.u_name))
+                        hold.hold_amount = round(hold.hold_amount * adj_factor, 3)
+                        hold.market_value = round(hold.close_price * hold.hold_amount, 3)
+                except Exception as e:
+                    print(e)
+                if (hold.hold_amount <= 0):
+                    print('remove hold: %s' % hold.trade_code)
+                else:
+                    HoldingLedgerModel.insert(trade_date=hold.trade_date, \
+                                              trade_code=hold.trade_code, \
+                                              trade_name=hold.trade_name, \
+                                              hold_amount=hold.hold_amount, \
+                                              close_price=hold.close_price, \
+                                              market_value=hold.market_value, \
+                                              position_percentage=hold.position_percentage).on_conflict_replace().execute()
 
     def __update_performance_ledger(self, trade_date):
         """Update portfolio performance ledger on the given trade date

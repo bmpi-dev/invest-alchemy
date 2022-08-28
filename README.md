@@ -38,6 +38,12 @@ Invest Alchemy is a trade assistant for A share stock market.
 - Bug Fix
   - [x] Trading signals error when double ma price are same
 
+## Note
+
+### Portfolio
+
+- **Split-adjusted share prices**: Not processed in the trading ledger (including users and robots), but processed in the holding ledger calculation.
+
 ## Post
 
 - [Serverless应用开发小记](https://www.bmpi.dev/dev/guide-to-serverless/)
