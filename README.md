@@ -51,4 +51,4 @@ Invest Alchemy is a trade assistant for A share stock market.
 
 ## Video Log
 
-- [Invest Alchemy开发日志](https://youtu.be/i3RDqAd9LKs)
+- [Invest Alchemy Dev Log](https://youtu.be/i3RDqAd9LKs)
