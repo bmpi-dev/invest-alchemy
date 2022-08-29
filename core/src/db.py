@@ -6,12 +6,12 @@ class BaseModel(Model):
         database = db
 
 class DmaTradeSignalModel(BaseModel):
-    trade_date = TextField()
-    trade_code = TextField()
-    trade_name = TextField(null=True)
-    trade_timestamp = IntegerField(constraints=[SQL("DEFAULT strftime('%s','now')")], null=True)
-    trade_type = IntegerField(null=True)
-    trade_strategy = TextField(constraints=[SQL("DEFAULT '11/22'")], null=True)
+    trade_code = CharField()
+    trade_date = CharField()
+    trade_name = CharField(null=True)
+    trade_type = CharField()
+    strategy_type = CharField(null=True)
+    trade_timestamp = DateTimeField(constraints=[SQL("DEFAULT (now() AT TIME ZONE 'utc'::text)")], null=True)
 
     class Meta:
         table_name = 'dma_trade_signal'

@@ -4,11 +4,12 @@
 
 CREATE TABLE dma_trade_signal
 (
-  trade_date            TEXT NOT NULL,
-  trade_code            TEXT NOT NULL,
-  trade_name            TEXT,
-  trade_type            VARCHAR(10),
-  trade_timestamp       INTEGER DEFAULT (strftime('%s','now')),
+  trade_date            VARCHAR(30) NOT NULL,
+  trade_code            VARCHAR(30) NOT NULL,
+  trade_name            VARCHAR(50),
+  trade_type            VARCHAR(20) NOT NULL,
+  strategy_type         VARCHAR(20),
+  trade_timestamp       timestamp without time zone default (now() at time zone 'utc'),
   PRIMARY KEY (trade_date, trade_code)
 );
 

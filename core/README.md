@@ -61,7 +61,7 @@ python3 other/main_db_migrate.py
 #### Peewee Model
 
 ```bash
-python3 -m pwiz -e sqlite /tmp/invest-alchemy/base.db # generate peewee model from sqlite database
+python3 -m pwiz -e postgresql -u postgres -P -p 5432 -H $PG_DB_URL postgres # generate peewee model from postgres database
 ```
 
 ### S3

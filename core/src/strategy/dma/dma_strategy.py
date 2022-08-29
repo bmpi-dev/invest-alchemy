@@ -31,7 +31,13 @@ class DMATradeStrategy(IStrategy):
             state = signal.state
             code = signal.code
             name = signal.name
-            DmaTradeSignalModel.insert(trade_date=self.__end, trade_code=code, trade_name=name, trade_type=state.value, trade_strategy=self.__trade_strategy_db_marker).on_conflict_replace().execute()
+            DmaTradeSignalModel.insert(trade_date=self.__end, \
+                                       trade_code=code, \
+                                       trade_name=name, \
+                                       trade_type=state.value, \
+                                       strategy_type=self.__trade_strategy_db_marker \
+                                      ).on_conflict(conflict_target=[DmaTradeSignalModel.trade_date, DmaTradeSignalModel.trade_code], \
+                                       preserve=[DmaTradeSignalModel.trade_name, DmaTradeSignalModel.trade_type, DmaTradeSignalModel.strategy_type, DmaTradeSignalModel.trade_timestamp]).execute()
 
     def process(self, file_path):
         with open(file_path, "r") as f:

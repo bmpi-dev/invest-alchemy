@@ -21,6 +21,11 @@ RUN pip install numpy && \
   make && \
   make install
 
+# for python postgresql driver
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc \
+    && pip install psycopg2
+
 # clean unused package
 RUN rm -R ta-lib ta-lib-0.4.0-src.tar.gz && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     curl gnupg software-properties-common
