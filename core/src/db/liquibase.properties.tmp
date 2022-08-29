@@ -1,0 +1,7 @@
+changeLogFile=db/changelog.xml
+username=
+password=
+url=jdbc:postgresql://${POSTGRES_DB_URL}:5432/${DB_NAME}
+driver=org.postgresql.Driver
+logLevel=info
+liquibase.hub.mode=off

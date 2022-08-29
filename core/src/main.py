@@ -1,9 +1,8 @@
-from storage import upload_file, sync_db, do_db_migration, disconnect_db, connect_db
+from storage import upload_file, connect_db, disconnect_db
 from constants import OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM
 from notification import send_sns, send_tg_msg
 from strategy.dma.dma_strategy import DMATradeStrategy
 from message import generate_message_to_file
-from multiprocessing import Process
 from db import DmaTradeSignalModel
 from strategy.trade_signal import TradeSignalState
 from client.ts_client import TSClient
@@ -15,26 +14,10 @@ def startup():
     if (not exists(LOCAL_BASE_DIR)):
         os.makedirs(LOCAL_BASE_DIR, exist_ok=True)
 
-    print('sync db at startup...\n')
-    sync_db()
-
-    print('\nstart migrate db in a new process...\n')
-    p = Process(target=do_db_migration, args=())
-    p.start()
-    p.join(timeout=60)
-
-    if p.is_alive():
-        print('do db migration timeout error...\n')
-        p.terminate()
-    else:
-        print('done db migration')
-
     print('connect db at startup...\n')
     connect_db()
 
 def shutdown():
-    print('sync db at shutdown...\n')
-    sync_db()
     print('disconnect db at shutdown...\n')
     disconnect_db()
 

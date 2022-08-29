@@ -19,3 +19,6 @@ var/
 
 # Serverless directories
 .serverless
+
+# ignore database migration config file for db connection info
+liquibase.properties

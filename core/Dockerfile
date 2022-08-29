@@ -3,21 +3,6 @@ FROM python:3.8-slim-buster
 USER root
 WORKDIR /tmp
 
-# install jdk/11
-ARG version=11.0.16.8-1
-RUN set -eux \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-        curl ca-certificates gnupg software-properties-common fontconfig java-common \
-    && curl -fL https://apt.corretto.aws/corretto.key | apt-key add - \
-    && add-apt-repository 'deb https://apt.corretto.aws stable main' \
-    && mkdir -p /usr/share/man/man1 || true \
-    && apt-get update \
-    && apt-get install -y java-11-amazon-corretto-jdk=1:$version
-
-ENV LANG C.UTF-8
-ENV JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto
-
 # for source
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 

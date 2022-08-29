@@ -44,6 +44,22 @@ change src code -> make build-docker -> make apply
 
 ### Database
 
+#### Liquibase Database Migration
+
+**Warning**: Database migration is required every time the database schema changes!
+
+> Considering that the number of database schema changes is very small, there is no need to do automatic migration because it will introduce complexity.
+
+First it must configure Liquibase's configuration file, copy `src/db/liquibase.properties.tmp` to `src/db/liquibase.properties`, then modify it with the real postgres configuration.
+
+After it, just execute this command in `src` directory.
+
+```bash
+python3 other/main_db_migrate.py
+```
+
+#### Peewee Model
+
 ```bash
 python3 -m pwiz -e sqlite /tmp/invest-alchemy/base.db # generate peewee model from sqlite database
 ```
