@@ -84,3 +84,13 @@ variable "TG_CHAT_IDS" {
   description = "TG API Chat Ids from .env"
   type        = string
 }
+
+variable "PG_DB_URL" {
+  description = "Main Database Connection URL"
+  type        = string
+}
+
+variable "PG_DB_PWD" {
+  description = "Main Database Password"
+  type        = string
+}

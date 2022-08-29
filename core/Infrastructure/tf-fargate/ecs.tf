@@ -28,6 +28,8 @@ resource "aws_ecs_task_definition" "task_definition" {
     TUSHARE_API_TOKEN   = "${var.TUSHARE_API_TOKEN}"
     TG_BOT_API_TOKEN    = "${var.TG_BOT_API_TOKEN}"
     TG_CHAT_IDS         = "${var.TG_CHAT_IDS}"
+    PG_DB_URL           = "${var.PG_DB_URL}"
+    PG_DB_PWD           = "${var.PG_DB_PWD}"
   })
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
