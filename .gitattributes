@@ -1,3 +1,5 @@
 core/src/** linguist-language=python
 core/Infrastructure/** linguist-language=HCL
 *.js linguist-language=javascript
+*.html linguist-detectable=false
+*.ipynb linguist-detectable=false
