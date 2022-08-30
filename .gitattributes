@@ -1,0 +1,3 @@
+core/src/** linguist-language=python
+core/Infrastructure/** linguist-language=HCL
+*.js linguist-language=javascript
