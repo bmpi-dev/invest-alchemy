@@ -6,6 +6,9 @@ class TSClient(ITradeDataClient):
 
     def __init__(self):
         self.__pro = ts.pro_api(os.environ['TUSHARE_API_TOKEN'])
+
+    def get_ts(self):
+        return self.__pro
     
     def get_qfq_close_price(self, code, start, end):
         adj = self.__pro.fund_adj(ts_code=code, start_date=start, end_date=end).sort_index(ascending=False)

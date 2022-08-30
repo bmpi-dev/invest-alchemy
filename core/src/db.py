@@ -19,3 +19,22 @@ class DmaTradeSignalModel(BaseModel):
             (('trade_date', 'trade_code'), True),
         )
         primary_key = CompositeKey('trade_code', 'trade_date')
+
+class IndexDailyModel(BaseModel):
+    trade_code = CharField()
+    trade_date = CharField()
+    trade_name = CharField(null=True)
+    open_price = DoubleField()
+    close_price = DoubleField()
+    high_price = DoubleField()
+    low_price = DoubleField()
+    change = DoubleField()
+    pct_chg = DoubleField()
+    trade_timestamp = DateTimeField(constraints=[SQL("DEFAULT (now() AT TIME ZONE 'utc'::text)")], null=True)
+
+    class Meta:
+        table_name = 'index_daily'
+        indexes = (
+            (('trade_date', 'trade_code'), True),
+        )
+        primary_key = CompositeKey('trade_code', 'trade_date')
