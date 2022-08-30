@@ -6,7 +6,12 @@ Invest Alchemy is a trade assistant for A share stock market.
 
 - Feature
   - Strategy
-    - [x] ETF Double MA
+    - [x] Double MA
+    - [ ] Turtle
+    - [ ] Backtrace MA250
+    - [ ] Breakthrough Platform
+    - [ ] Keep Increasing
+    - [ ] Low Atr
   - Market
     - [ ] Index Historical P/E Ratio
     - [ ] Base database store baseline (10%) and popular indexs performance (000905/000300/399006/HSI/IXIC/INX) 🚩
@@ -39,6 +44,10 @@ Invest Alchemy is a trade assistant for A share stock market.
   - [x] Trading signals error when double ma price are same
 
 ## Note
+
+### Strategy
+
+- [Sequoia](https://github.com/sngyai/Sequoia)
 
 ### Portfolio
 
