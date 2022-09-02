@@ -42,6 +42,10 @@ class IndexDailyModel(BaseModel):
 class Portfolio(BaseModel):
     trader_id = IntegerField()
     portfolio_name = CharField()
+    portfolio_create_date = CharField()
+    portfolio_net_value = DoubleField(constraints=[SQL("DEFAULT 1.0")])
+    portfolio_trade_date = CharField()
+    portfolio_type = CharField(constraints=[SQL("DEFAULT 'private'::character varying")], null=True)
     comment = TextField(null=True)
     portfolio_status = CharField(null=True)
     update_timestamp = DateTimeField(constraints=[SQL("DEFAULT (now() AT TIME ZONE 'utc'::text)")], null=True)
