@@ -287,13 +287,16 @@ class Portfolio:
 
                 last_net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _day_before_trade_date_str).get()
                 current_fundings = FundingLedgerModel.select().where(FundingLedgerModel.trade_date == _trade_date_str)
+                current_transactions = TransactionLedgerModel.select().where(TransactionLedgerModel.trade_date == _trade_date_str)
                 funding_change = 0.0
                 trade_money_change = 0.0
                 for funding in current_fundings:
                     if (funding.fund_type == 'in' or funding.fund_type == 'out'):
                         funding_change = funding_change + funding.fund_amount
-                    if (funding.fund_type == 'buy' or funding.fund_type == 'sell'):
-                        trade_money_change = trade_money_change + funding.fund_amount
+                for transaction in current_transactions:
+                    if (transaction.trade_type == 'buy' or transaction.trade_type == 'sell'):
+                        trade_money_change = trade_money_change - transaction.trade_money
+                
                 shares_change = round(funding_change / last_net_value.net_value, 3)
 
                 current_hold_assets = 0.0
@@ -304,7 +307,7 @@ class Portfolio:
                 current_total_shares = last_net_value.total_shares + shares_change
                 current_fund_balance = last_net_value.fund_balance + funding_change + trade_money_change
                 current_total_assets = round(current_hold_assets + current_fund_balance, 3)
-                current_net_value = round(current_total_assets / current_total_shares, 3)
+                current_net_value = 1.0 if current_total_shares == 0 else round(current_total_assets / current_total_shares, 3)
                 
                 NetValueLedgerModel.insert(trade_date=_trade_date_str, \
                                         net_value=current_net_value, \

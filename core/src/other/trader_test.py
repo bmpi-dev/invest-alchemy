@@ -20,4 +20,4 @@ PortfolioModel.insert(trader_username='bmpi', portfolio_name='被动收入', \
                                     PortfolioModel.portfolio_status, PortfolioModel.update_timestamp]).execute()
 
 bmpi = UserTrader('bmpi')
-bmpi.update_portfolios('20210713')
+bmpi.update_portfolios('20220801')
