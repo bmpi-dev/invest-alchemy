@@ -9,7 +9,8 @@ from client.ts_client import TSClient
 
 ts = TSClient()
 
-data = ts.get_qfq_close_price('159941.SZ', '20190120', '20190121')
+# data = ts.get_qfq_close_price('601288.SH', '20190120', '20190123')
+data = ts.get_qfq_close_price('159941', '20190120', '20190123')
 
 print(data)
 print(round(float(data['close'].iloc[-1]), 3))

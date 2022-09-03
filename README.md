@@ -17,6 +17,8 @@ Invest Alchemy is a trade assistant for A share stock market.
     - [x] Base database store baseline (10%) and popular indexs performance (000905/000300/399006/HSI/IXIC/INX)
   - Portfolio
     - [x] Transaction/Funding/Holding/NetValue/Performance Ledger
+    - [x] Support trade A share stock
+    - [ ] Support trade A public funds (not include ETF/LOF)
   - Trader
     - User
       - [ ] User portfolio calculation support 🚩
@@ -51,7 +53,8 @@ Invest Alchemy is a trade assistant for A share stock market.
 
 ### Portfolio
 
-- **Split-adjusted share prices**: Not processed in the trading ledger (including users and robots), but processed in the holding ledger calculation.
+- **Split-adjusted share prices**: Not processed in the trading ledger (only robots, **user trader need add a transaction when split-adjusted happens**), but processed in the holding ledger calculation.
+  - [ ] Robot user still can not process, because split-adjusted check on the portfolio net value ledger calculation, but sell transaction amount do not equal to holding amount because sell transaction generated on the transaction ledger calculation, so it needs to process on portfolio net value calculation when user is a robot type.
 
 ### Robot Trader
 
