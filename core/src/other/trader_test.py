@@ -3,11 +3,21 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-from trader.robot.dma_trader_v01 import DMATraderV01
-from trader.robot.dma_trader_v02 import DMATraderV02
+from trader.user_trader import UserTrader
+from trader.trader import TraderStatus, TraderType
+from portfolio.trade_portfolio import PortfolioType, PortfolioStatus
+from db import PortfolioModel, TraderModel
 
-trader1 = DMATraderV01()
-trader1.update_portfolios('20220820')
+TraderModel.insert(username='bmpi', trader_status=TraderStatus.NORMAL.value, trader_type=TraderType.COMMON.value) \
+                     .on_conflict(conflict_target=[TraderModel.username], \
+                                       preserve=[TraderModel.trader_status, TraderModel.trader_type, TraderModel.update_timestamp]).execute()
 
-trader2 = DMATraderV02()
-trader2.update_portfolios('20220820')
+PortfolioModel.insert(trader_username='bmpi', portfolio_name='被动收入', \
+                      portfolio_create_date='20180801', portfolio_trade_date='20220801', \
+                      portfolio_type=PortfolioType.PUBLIC.value, portfolio_status=PortfolioStatus.CREATE.value) \
+                      .on_conflict(conflict_target=[PortfolioModel.trader_username, PortfolioModel.portfolio_name], \
+                                   preserve=[PortfolioModel.portfolio_trade_date, PortfolioModel.portfolio_type, \
+                                    PortfolioModel.portfolio_status, PortfolioModel.update_timestamp]).execute()
+
+bmpi = UserTrader('bmpi')
+bmpi.update_portfolios('20210713')

@@ -10,6 +10,16 @@ from market.index_daily import IndexDaily
 from os.path import exists
 import os
 
+from trader.robot.dma_trader_v01 import DMATraderV01
+from trader.robot.dma_trader_v02 import DMATraderV02
+
+def robot_trader_portfolio_cal():
+    trader1 = DMATraderV01()
+    trader1.update_portfolios(TODAY_STR)
+
+    trader2 = DMATraderV02()
+    trader2.update_portfolios(TODAY_STR)
+
 def startup():
     print('make sure local bash path exists...')
     if (not exists(LOCAL_BASE_DIR)):
@@ -61,5 +71,8 @@ if __name__ == "__main__":
         print('start send tg msg...')
         send_tg_msg(LOCAL_BASE_DIR + OUTPUT_FILE)
         print('end send tg msg...')
+
+    print('start process robot trader portfolio calculate...')
+    robot_trader_portfolio_cal()
 
     shutdown()

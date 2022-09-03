@@ -8,13 +8,24 @@ from portfolio.portfolio_db import *
 from util.common import *
 from datetime import datetime, timedelta
 from constants import TRADE_DATE_FORMAT_STR
-from util.common import get_trade_close_price, get_qfq_close_price, CAGR, SHARPE_RATIO
+from util.common import get_trade_close_price, get_qfq_close_price, CAGR, SHARPE_RATIO, is_trader_robot
 import pandas as pd
+from enum import Enum
+
+class PortfolioStatus(Enum):
+    CREATE = 'C'
+    RUNNING = 'R'
+    STOP = 'S'
+    DISABLE = 'D'
+
+class PortfolioType(Enum):
+    PRIVATE = 'private'
+    PUBLIC = 'public'
 
 class Portfolio:
     """Trade Portfolio class"""
 
-    def __init__(self, u_name, portfolio_name, create_date):
+    def __init__(self, u_name, portfolio_name, create_date, portfolio_type=PortfolioType.PRIVATE.value):
         self.u_name = u_name
         self.portfolio_name = portfolio_name
         self.create_date = create_date
@@ -26,6 +37,7 @@ class Portfolio:
         self.transaction_remote_ledger = self.portfolio_remote_base_path + 'transaction_ledger.csv'
         self.funding_local_ledger = self.portfolio_local_base_path + 'funding_ledger.csv'
         self.funding_remote_ledger = self.portfolio_remote_base_path + 'funding_ledger.csv'
+        self.portfolio_type = portfolio_type
 
     def __init_work_dir(self):
         if (exists(self.portfolio_db_local_path)):
@@ -34,7 +46,7 @@ class Portfolio:
                 os.remove(self.portfolio_db_local_path)
                 os.remove(self.transaction_local_ledger)
                 os.remove(self.funding_local_ledger)
-            except Exception(e):
+            except Exception as e:
                 print(e)
         else:
             os.makedirs(self.portfolio_local_base_path, exist_ok=True)
@@ -61,7 +73,8 @@ class Portfolio:
             print('start disconnect database for portfolio(%s) ot user(%s)' % (self.portfolio_name, self.u_name))
             disconnect_db()
             print('upload the files to s3 for portfolio(%s) of user(%s)' % (self.portfolio_name, self.u_name))
-            s3_client.upload_file(self.portfolio_db_local_path, S3_BUCKET_NAME, self.portfolio_db_remote_path, ExtraArgs={'ACL': 'public-read'})
+            db_s3_flag = {'ACL': 'public-read'} if self.portfolio_type == PortfolioType.PUBLIC.value else {}
+            s3_client.upload_file(self.portfolio_db_local_path, S3_BUCKET_NAME, self.portfolio_db_remote_path, ExtraArgs=db_s3_flag)
             s3_client.upload_file(self.transaction_local_ledger, S3_BUCKET_NAME, self.transaction_remote_ledger)
             s3_client.upload_file(self.funding_local_ledger, S3_BUCKET_NAME, self.funding_remote_ledger)
         else:
@@ -90,7 +103,7 @@ class Portfolio:
                     trade_amount=round(float(row['trade_amount']), 3)
                     trade_price=round(float(row['trade_price']), 3)
                     trade_money=round(trade_amount * trade_price, 3)
-                    current_available_amount=round(float(row['current_available_amount']), 3)
+                    current_available_amount=round(float(0 if row['current_available_amount']=='' else row['current_available_amount']), 3)
                     save_db = TransactionLedgerModel(trade_date=trade_date_csv, \
                                                     trade_code=row['trade_code'], \
                                                     trade_name=row['trade_name'], \
@@ -123,7 +136,7 @@ class Portfolio:
                 if (trade_date_big(trade_date_csv, last_trade_date_db)):
                     print('update funding ledger of portfolio(%s) for user(%s), trade date: %s...' % (self.portfolio_name, self.u_name, trade_date_csv))
                     fund_amount=round(float(row['fund_amount']), 3)
-                    current_available_amount=round(float(row['current_available_amount']), 3)
+                    current_available_amount=round(float(0 if row['current_available_amount']=='' else row['current_available_amount']), 3)
                     save_db = FundingLedgerModel(trade_date=trade_date_csv, \
                                                 fund_amount=fund_amount, \
                                                 current_available_amount=current_available_amount, \
@@ -148,13 +161,13 @@ class Portfolio:
                 first_transaction_date = first_transaction.trade_date
                 first_transactions = TransactionLedgerModel.select().where(TransactionLedgerModel.trade_date == first_transaction_date)
                 for transaction in first_transactions:
-                    if (transaction.current_available_amount > 0):
+                    if (transaction.trade_amount > 0):
                         close_price = get_trade_close_price(first_transaction_date, transaction.trade_code)
-                        market_value = transaction.current_available_amount * close_price
+                        market_value = transaction.trade_amount * close_price
                         HoldingLedgerModel.insert(trade_date=first_transaction_date, \
                                                   trade_code=transaction.trade_code, \
                                                   trade_name=transaction.trade_name, \
-                                                  hold_amount=transaction.current_available_amount, \
+                                                  hold_amount=transaction.trade_amount, \
                                                   close_price=close_price, \
                                                   market_value=market_value, \
                                                   position_percentage=0.0).on_conflict_replace().execute()
@@ -217,12 +230,14 @@ class Portfolio:
                     hold.close_price = close_price
                     hold.market_value = round(hold.close_price * hold.hold_amount, 3)
                     adj_factor = float(price_data['adj_factor'].iloc[-1] / price_data['adj_factor'].iloc[-2])
-                    if (adj_factor != 1.0):
-                        print('process split-adjusted share prices case: holding code(%s) with trade date(%s), found adj_factor(%d) for portfolio(%s) of user(%s)' % (hold.trade_code, _trade_date_str, adj_factor, self.portfolio_name, self.u_name))
-                        hold.hold_amount = round(hold.hold_amount * adj_factor, 3)
-                        hold.market_value = round(hold.close_price * hold.hold_amount, 3)
+                    # only robot trader need process split-adjusted case
+                    if (is_trader_robot(self.u_name)):
+                        if (adj_factor != 1.0):
+                            print('process split-adjusted share prices case: holding code(%s) with trade date(%s), found adj_factor(%d) for portfolio(%s) of user(%s)' % (hold.trade_code, _trade_date_str, adj_factor, self.portfolio_name, self.u_name))
+                            hold.hold_amount = round(hold.hold_amount * adj_factor, 3)
+                            hold.market_value = round(hold.close_price * hold.hold_amount, 3)
                 except Exception as e:
-                    print(e)
+                    print('Exception: %s' % e)
                 if (hold.hold_amount <= 0):
                     print('remove hold: %s' % hold.trade_code)
                 else:
@@ -263,39 +278,42 @@ class Portfolio:
             return
         
         for i in range(days):
-            _trade_date = start_date + timedelta(i)
-            _day_before_trade_date_str = (_trade_date - timedelta(1)).strftime(TRADE_DATE_FORMAT_STR)
-            _trade_date_str = _trade_date.strftime(TRADE_DATE_FORMAT_STR)
+            try:
+                _trade_date = start_date + timedelta(i)
+                _day_before_trade_date_str = (_trade_date - timedelta(1)).strftime(TRADE_DATE_FORMAT_STR)
+                _trade_date_str = _trade_date.strftime(TRADE_DATE_FORMAT_STR)
 
-            print('calculate net value ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, _trade_date_str))
+                print('calculate net value ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, _trade_date_str))
 
-            last_net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _day_before_trade_date_str).get()
-            current_fundings = FundingLedgerModel.select().where(FundingLedgerModel.trade_date == _trade_date_str)
-            funding_change = 0.0
-            trade_money_change = 0.0
-            for funding in current_fundings:
-                if (funding.fund_type == 'in' or funding.fund_type == 'out'):
-                    funding_change = funding_change + funding.fund_amount
-                if (funding.fund_type == 'buy' or funding.fund_type == 'sell'):
-                    trade_money_change = trade_money_change + funding.fund_amount
-            shares_change = round(funding_change / last_net_value.net_value, 3)
+                last_net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _day_before_trade_date_str).get()
+                current_fundings = FundingLedgerModel.select().where(FundingLedgerModel.trade_date == _trade_date_str)
+                funding_change = 0.0
+                trade_money_change = 0.0
+                for funding in current_fundings:
+                    if (funding.fund_type == 'in' or funding.fund_type == 'out'):
+                        funding_change = funding_change + funding.fund_amount
+                    if (funding.fund_type == 'buy' or funding.fund_type == 'sell'):
+                        trade_money_change = trade_money_change + funding.fund_amount
+                shares_change = round(funding_change / last_net_value.net_value, 3)
 
-            current_hold_assets = 0.0
-            current_holds = HoldingLedgerModel.select().where(HoldingLedgerModel.trade_date == _trade_date_str)
-            for hold in current_holds:
-                current_hold_assets = current_hold_assets + hold.market_value
+                current_hold_assets = 0.0
+                current_holds = HoldingLedgerModel.select().where(HoldingLedgerModel.trade_date == _trade_date_str)
+                for hold in current_holds:
+                    current_hold_assets = current_hold_assets + hold.market_value
 
-            current_total_shares = last_net_value.total_shares + shares_change
-            current_fund_balance = last_net_value.fund_balance + funding_change + trade_money_change
-            current_total_assets = round(current_hold_assets + current_fund_balance, 3)
-            current_net_value = round(current_total_assets / current_total_shares, 3)
-            
-            NetValueLedgerModel.insert(trade_date=_trade_date_str, \
-                                       net_value=current_net_value, \
-                                       total_shares=current_total_shares, \
-                                       total_assets=current_total_assets, \
-                                       hold_assets=current_hold_assets, \
-                                       fund_balance=current_fund_balance).on_conflict_replace().execute()
+                current_total_shares = last_net_value.total_shares + shares_change
+                current_fund_balance = last_net_value.fund_balance + funding_change + trade_money_change
+                current_total_assets = round(current_hold_assets + current_fund_balance, 3)
+                current_net_value = round(current_total_assets / current_total_shares, 3)
+                
+                NetValueLedgerModel.insert(trade_date=_trade_date_str, \
+                                        net_value=current_net_value, \
+                                        total_shares=current_total_shares, \
+                                        total_assets=current_total_assets, \
+                                        hold_assets=current_hold_assets, \
+                                        fund_balance=current_fund_balance).on_conflict_replace().execute()
+            except Exception as e:
+                print('Exception: %s' % e)
     
     def __update_performance_ledger(self, trade_date):
         """Update portfolio performance ledger on the given trade date
@@ -334,49 +352,52 @@ class Portfolio:
             return
         
         for i in range(days):
-            _trade_date = start_date + timedelta(i)
-            _day_before_trade_date_str = (_trade_date - timedelta(1)).strftime(TRADE_DATE_FORMAT_STR)
-            _trade_date_str = _trade_date.strftime(TRADE_DATE_FORMAT_STR)
+            try:
+                _trade_date = start_date + timedelta(i)
+                _day_before_trade_date_str = (_trade_date - timedelta(1)).strftime(TRADE_DATE_FORMAT_STR)
+                _trade_date_str = _trade_date.strftime(TRADE_DATE_FORMAT_STR)
 
-            print('calculate performance ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, _trade_date_str))
+                print('calculate performance ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, _trade_date_str))
 
-            last_net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _day_before_trade_date_str).get()
-            current_net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _trade_date_str).get()
-            last_performance = PerformanceLedgerModel.select().where(PerformanceLedgerModel.trade_date == _day_before_trade_date_str).get()
-            performances = PerformanceLedgerModel.select().where(PerformanceLedgerModel.trade_date <= _day_before_trade_date_str)
+                last_net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _day_before_trade_date_str).get()
+                current_net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _trade_date_str).get()
+                last_performance = PerformanceLedgerModel.select().where(PerformanceLedgerModel.trade_date == _day_before_trade_date_str).get()
+                performances = PerformanceLedgerModel.select().where(PerformanceLedgerModel.trade_date <= _day_before_trade_date_str)
 
-            max_net_value = NetValueLedgerModel.select(fn.MAX(NetValueLedgerModel.net_value)).where(NetValueLedgerModel.trade_date <= _trade_date_str).scalar()
-            max_retracement_range_history = PerformanceLedgerModel.select(fn.MIN(PerformanceLedgerModel.max_retracement_range)).where(PerformanceLedgerModel.trade_date <= _trade_date_str).scalar() # value is minus, so select the MIN
-            max_days_of_continuous_loss_history = PerformanceLedgerModel.select(fn.MAX(PerformanceLedgerModel.days_of_continuous_loss)).where(PerformanceLedgerModel.trade_date <= _trade_date_str).scalar()
-            days_of_win_history = PerformanceLedgerModel.select(fn.COUNT(PerformanceLedgerModel.trade_date)).where(PerformanceLedgerModel.trade_date <= _trade_date_str, PerformanceLedgerModel.change_percentage > 0).scalar()
-            days_of_loss_history = PerformanceLedgerModel.select(fn.COUNT(PerformanceLedgerModel.trade_date)).where(PerformanceLedgerModel.trade_date <= _trade_date_str, PerformanceLedgerModel.change_percentage < 0).scalar()
-            total_trade_count = TransactionLedgerModel.select(fn.COUNT(TransactionLedgerModel.trade_date)).where(TransactionLedgerModel.trade_date <= _trade_date_str, TransactionLedgerModel.trade_type == 'sell').scalar()
+                max_net_value = NetValueLedgerModel.select(fn.MAX(NetValueLedgerModel.net_value)).where(NetValueLedgerModel.trade_date <= _trade_date_str).scalar()
+                max_retracement_range_history = PerformanceLedgerModel.select(fn.MIN(PerformanceLedgerModel.max_retracement_range)).where(PerformanceLedgerModel.trade_date <= _trade_date_str).scalar() # value is minus, so select the MIN
+                max_days_of_continuous_loss_history = PerformanceLedgerModel.select(fn.MAX(PerformanceLedgerModel.days_of_continuous_loss)).where(PerformanceLedgerModel.trade_date <= _trade_date_str).scalar()
+                days_of_win_history = PerformanceLedgerModel.select(fn.COUNT(PerformanceLedgerModel.trade_date)).where(PerformanceLedgerModel.trade_date <= _trade_date_str, PerformanceLedgerModel.change_percentage > 0).scalar()
+                days_of_loss_history = PerformanceLedgerModel.select(fn.COUNT(PerformanceLedgerModel.trade_date)).where(PerformanceLedgerModel.trade_date <= _trade_date_str, PerformanceLedgerModel.change_percentage < 0).scalar()
+                total_trade_count = TransactionLedgerModel.select(fn.COUNT(TransactionLedgerModel.trade_date)).where(TransactionLedgerModel.trade_date <= _trade_date_str, TransactionLedgerModel.trade_type == 'sell').scalar()
 
-            change_percentage = round((current_net_value.net_value - last_net_value.net_value) / last_net_value.net_value, 3)
-            retracement_range = round((current_net_value.net_value - max_net_value) / max_net_value, 3)
-            max_retracement_range = retracement_range if retracement_range < max_retracement_range_history else max_retracement_range_history
-            days_of_continuous_loss = last_performance.days_of_continuous_loss + 1 if change_percentage < 0 else 0
-            max_days_of_continuous_loss = days_of_continuous_loss if days_of_continuous_loss > max_days_of_continuous_loss_history else max_days_of_continuous_loss_history
-            days_of_win = days_of_win_history + 1 if change_percentage > 0 else days_of_win_history
-            days_of_loss = days_of_loss_history + 1 if change_percentage < 0 else days_of_loss_history
-            run_days = last_performance.run_days + 1
-            cagr = round(CAGR(1.0, current_net_value.net_value, float(run_days/365)), 3)
-            sharpe_ratio = SHARPE_RATIO(pd.DataFrame(list(performances.dicts()))['change_percentage']) # not contain current performance data because it has not yet saved in database
+                change_percentage = round((current_net_value.net_value - last_net_value.net_value) / last_net_value.net_value, 3)
+                retracement_range = round((current_net_value.net_value - max_net_value) / max_net_value, 3)
+                max_retracement_range = retracement_range if retracement_range < max_retracement_range_history else max_retracement_range_history
+                days_of_continuous_loss = last_performance.days_of_continuous_loss + 1 if change_percentage < 0 else 0
+                max_days_of_continuous_loss = days_of_continuous_loss if days_of_continuous_loss > max_days_of_continuous_loss_history else max_days_of_continuous_loss_history
+                days_of_win = days_of_win_history + 1 if change_percentage > 0 else days_of_win_history
+                days_of_loss = days_of_loss_history + 1 if change_percentage < 0 else days_of_loss_history
+                run_days = last_performance.run_days + 1
+                cagr = round(CAGR(1.0, current_net_value.net_value, float(run_days/365)), 3)
+                sharpe_ratio = SHARPE_RATIO(pd.DataFrame(list(performances.dicts()))['change_percentage']) # not contain current performance data because it has not yet saved in database
 
-            PerformanceLedgerModel.insert(trade_date=_trade_date_str, \
-                                        change_percentage=change_percentage, \
-                                        retracement_range=retracement_range, \
-                                        max_retracement_range=max_retracement_range, \
-                                        days_of_continuous_loss=days_of_continuous_loss, \
-                                        max_days_of_continuous_loss=max_days_of_continuous_loss, \
-                                        days_of_win=days_of_win, \
-                                        days_of_loss=days_of_loss, \
-                                        run_days=run_days, \
-                                        total_trade_count=total_trade_count, \
-                                        cagr=cagr, \
-                                        sharpe_ratio=sharpe_ratio, \
-                                        hold_risk_count=0, \
-                                        buy_risk_count=0).on_conflict_replace().execute()
+                PerformanceLedgerModel.insert(trade_date=_trade_date_str, \
+                                            change_percentage=change_percentage, \
+                                            retracement_range=retracement_range, \
+                                            max_retracement_range=max_retracement_range, \
+                                            days_of_continuous_loss=days_of_continuous_loss, \
+                                            max_days_of_continuous_loss=max_days_of_continuous_loss, \
+                                            days_of_win=days_of_win, \
+                                            days_of_loss=days_of_loss, \
+                                            run_days=run_days, \
+                                            total_trade_count=total_trade_count, \
+                                            cagr=cagr, \
+                                            sharpe_ratio=sharpe_ratio, \
+                                            hold_risk_count=0, \
+                                            buy_risk_count=0).on_conflict_replace().execute()
+            except Exception as e:
+                print('Exception: %s' % e)
 
     def update_net_value(self, trade_date):
         self.__update_transaction_ledger(trade_date)

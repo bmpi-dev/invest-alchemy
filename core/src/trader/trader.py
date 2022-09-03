@@ -1,6 +1,15 @@
 from abc import ABCMeta, abstractmethod, abstractproperty
 from typing import List
 from portfolio.trade_portfolio import Portfolio
+from enum import Enum
+
+class TraderStatus(Enum):
+    NORMAL = 'N'
+    DISABLE = 'D'
+
+class TraderType(Enum):
+    COMMON = 'C' # common user trader
+    ROBOT = 'R' # robot trader
 
 class ITrader(metaclass=ABCMeta):
     @abstractproperty

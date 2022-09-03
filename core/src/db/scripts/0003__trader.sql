@@ -4,8 +4,7 @@
 
 CREATE TABLE trader
 (
-  id                         serial PRIMARY KEY,
-  username                   VARCHAR(30) UNIQUE,
+  username                   VARCHAR(30) PRIMARY KEY,
   email                      VARCHAR(50),
   nickname                   VARCHAR(30),
   trader_type                VARCHAR(10),

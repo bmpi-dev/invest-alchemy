@@ -39,29 +39,33 @@ class IndexDailyModel(BaseModel):
         )
         primary_key = CompositeKey('trade_code', 'trade_date')
 
-class Portfolio(BaseModel):
-    trader_id = IntegerField()
+class PortfolioModel(BaseModel):
+    trader_username = CharField()
     portfolio_name = CharField()
     portfolio_create_date = CharField()
     portfolio_net_value = DoubleField(constraints=[SQL("DEFAULT 1.0")])
-    portfolio_trade_date = CharField()
+    portfolio_status = CharField(null=True)
+    portfolio_trade_date = CharField(null=True)
     portfolio_type = CharField(constraints=[SQL("DEFAULT 'private'::character varying")], null=True)
     comment = TextField(null=True)
-    portfolio_status = CharField(null=True)
-    update_timestamp = DateTimeField(constraints=[SQL("DEFAULT (now() AT TIME ZONE 'utc'::text)")], null=True)
     create_timestamp = DateTimeField(constraints=[SQL("DEFAULT (now() AT TIME ZONE 'utc'::text)")], null=True)
+    update_timestamp = DateTimeField(constraints=[SQL("DEFAULT (now() AT TIME ZONE 'utc'::text)")], null=True)
 
     class Meta:
         table_name = 'portfolio'
+        indexes = (
+            (('trader_username', 'portfolio_name'), True),
+        )
+        primary_key = CompositeKey('portfolio_name', 'trader_username')
 
-class Trader(BaseModel):
-    username = CharField(null=True, unique=True)
+class TraderModel(BaseModel):
+    username = CharField(primary_key=True)
     email = CharField(null=True)
     nickname = CharField(null=True)
     trader_status = CharField(null=True)
     trader_type = CharField(null=True)
     update_timestamp = DateTimeField(constraints=[SQL("DEFAULT (now() AT TIME ZONE 'utc'::text)")], null=True)
     create_timestamp = DateTimeField(constraints=[SQL("DEFAULT (now() AT TIME ZONE 'utc'::text)")], null=True)
-
+    
     class Meta:
         table_name = 'trader'

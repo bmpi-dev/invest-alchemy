@@ -30,3 +30,6 @@ def SHARPE_RATIO(input: DataFrame) -> float:
     if float(std) == 0 or math.isnan(float(std)):
         return 0
     return round(float(ave / std), 3)
+
+def is_trader_robot(name):
+    return name.startswith('robot_')

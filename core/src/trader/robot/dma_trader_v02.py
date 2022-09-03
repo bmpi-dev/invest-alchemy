@@ -1,5 +1,6 @@
 from trader.trader import ITrader
 from portfolio.trade_portfolio import Portfolio
+from portfolio.trade_portfolio import PortfolioType
 from constants import TRADE_DATE_FORMAT_STR
 from typing import List
 from db import DmaTradeSignalModel
@@ -16,7 +17,7 @@ class DMATraderV02(ITrader):
 
     def __init__(self, u_name: str=None):
         self.u_name = u_name if u_name else 'robot_dma_v02'
-        self.__portfolios = [Portfolio(self.u_name, 'dma_11_22', '20180920')]
+        self.__portfolios = [Portfolio(self.u_name, 'dma_11_22', '20180920', portfolio_type=PortfolioType.PUBLIC.value)]
         self.__init_fund_amount_per_portfolio = 100000
         self.__max_amount_single_trade_target = 0 # no limit, all in
         self.__min_amount_single_trade_target = self.__init_fund_amount_per_portfolio / 100
