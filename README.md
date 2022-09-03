@@ -55,7 +55,7 @@ Invest Alchemy is a trade assistant for A share stock market.
 ### Portfolio
 
 - **Split-adjusted share prices**: Not processed in the trading ledger (only robots, **user trader need add a transaction when split-adjusted happens**), but processed in the holding ledger calculation.
-  - [ ] Robot user still can not process, because split-adjusted check on the portfolio net value ledger calculation, but sell transaction amount do not equal to holding amount because sell transaction generated on the transaction ledger calculation, so it needs to process on portfolio net value calculation when user is a robot type.
+  - [ ] 🐛 Robot user still can not process, because split-adjusted check on the portfolio net value ledger calculation, but sell transaction amount do not equal to holding amount because sell transaction generated on the transaction ledger calculation, so it needs to process on portfolio net value calculation when user is a robot type.
 
 ### Robot Trader
 
