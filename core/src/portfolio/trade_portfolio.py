@@ -5,7 +5,7 @@ import botocore
 from constants import S3_BUCKET_NAME
 import os, sys, csv
 from portfolio.portfolio_db import *
-from db import IndexDailyModel
+from db import IndexDailyModel, PortfolioModel
 from util.common import *
 from datetime import datetime, timedelta
 from constants import TRADE_DATE_FORMAT_STR
@@ -566,6 +566,19 @@ class Portfolio:
             except Exception as e:
                 print('Exception: %s' % e)
 
+    def __update_net_value_to_main_db(self):
+        """Update portfolio net value to main database
+
+        :return: None
+        """
+        current_net_value = NetValueLedgerModel.select().order_by(NetValueLedgerModel.trade_date.desc()).get()
+        PortfolioModel.insert(trader_username=self.u_name, portfolio_name=self.portfolio_name, \
+                      portfolio_create_date=self.create_date, portfolio_trade_date=current_net_value.trade_date, \
+                      portfolio_type=self.portfolio_type, portfolio_net_value=current_net_value.net_value, portfolio_status= PortfolioStatus.RUNNING.value) \
+                      .on_conflict(conflict_target=[PortfolioModel.trader_username, PortfolioModel.portfolio_name], \
+                                   preserve=[PortfolioModel.portfolio_trade_date, PortfolioModel.portfolio_type, \
+                                             PortfolioModel.portfolio_net_value, PortfolioModel.update_timestamp, PortfolioModel.portfolio_status]).execute()
+
     def update_net_value(self, trade_date):
         self.__update_transaction_ledger(trade_date)
         self.__update_funding_ledger(trade_date)
@@ -573,3 +586,4 @@ class Portfolio:
         self.__update_net_value_ledger(trade_date)
         self.__update_performance_ledger(trade_date)
         self.__update_index_compare_ledger(trade_date)
+        self.__update_net_value_to_main_db()

@@ -36,7 +36,7 @@ class UserTrader(ITrader):
                                                                PortfolioModel.portfolio_status != PortfolioStatus.DISABLE.value)
             portfolios = []
             for p in portfolios_db:
-                portfolios.append(Portfolio(self.u_name, p.portfolio_name, p.portfolio_create_date))
+                portfolios.append(Portfolio(self.u_name, p.portfolio_name, p.portfolio_create_date, p.portfolio_type))
             self.__portfolios = portfolios
         return self.__portfolios
 
