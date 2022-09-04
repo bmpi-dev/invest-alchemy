@@ -50,12 +50,17 @@ Invest Alchemy is a trade assistant for A share stock market.
 
 ### Strategy
 
-- [Sequoia](https://github.com/sngyai/Sequoia)
+- Trade strategy
+  - [Sequoia](https://github.com/sngyai/Sequoia)
+
+- Issue
+  - **Split-adjusted share prices**: Use `qfq` adjust price to generate trade signals.
 
 ### Portfolio
 
 - **Split-adjusted share prices**: Not processed in the trading ledger (only robots, **user trader need add a transaction when split-adjusted happens**), but processed in the holding ledger calculation.
-  - [ ] 🐛 Robot user still can not process, because split-adjusted check on the portfolio net value ledger calculation, but sell transaction amount do not equal to holding amount because sell transaction generated on the transaction ledger calculation, so it needs to process on portfolio net value calculation when user is a robot type.
+  - [x] 🐛 Robot user still can not process, because split-adjusted check on the portfolio net value ledger calculation, but sell transaction amount do not equal to holding amount because sell transaction generated on the transaction ledger calculation, so it needs to process on portfolio net value calculation when user is a robot type.
+    - Fix this issue by: robot trader use `qfq` adjust price while user trader use close price when calculate the portfolio net value (include transaction/holdings/net value ledger calculation), user trader need add a transaction when split-adjusted happens to adjust the hold amount.
 
 ### Robot Trader
 

@@ -8,7 +8,7 @@ from portfolio.portfolio_db import *
 from util.common import *
 from datetime import datetime, timedelta
 from constants import TRADE_DATE_FORMAT_STR
-from util.common import get_trade_close_price, get_qfq_close_price, CAGR, SHARPE_RATIO, is_trader_robot
+from util.common import get_qfq_close_price, get_trade_close_price, get_trade_qfq_price, CAGR, SHARPE_RATIO, is_trader_robot
 import pandas as pd
 from enum import Enum
 
@@ -170,7 +170,10 @@ class Portfolio:
                 first_transactions = TransactionLedgerModel.select().where(TransactionLedgerModel.trade_date == first_transaction_date)
                 for transaction in first_transactions:
                     if (transaction.trade_amount > 0):
-                        close_price = get_trade_close_price(first_transaction_date, transaction.trade_code)
+                        if (is_trader_robot(self.u_name)):
+                            close_price = get_trade_qfq_price(first_transaction_date, transaction.trade_code)
+                        else:
+                            close_price = get_trade_close_price(first_transaction_date, transaction.trade_code)
                         market_value = transaction.trade_amount * close_price
                         HoldingLedgerModel.insert(trade_date=first_transaction_date, \
                                                   trade_code=transaction.trade_code, \
@@ -231,21 +234,14 @@ class Portfolio:
                         raise Exception('process holding ledger error for portfolio(%s) of user(%s), because no holding but have a sell transaction record(DB id is %s)!' % (self.portfolio_name, self.u_name, transaction))
             
             for hold in current_holds:
-                try:
-                    # it musts get 15 days price data for calculating the split-adjusted share prices, because TSClient can not give data on non-trading date, so we need get price data on the trade day before the current trade day, 15 days is enough for A share stock.
-                    price_data = get_qfq_close_price(hold.trade_code, (_trade_date - timedelta(15)).strftime(TRADE_DATE_FORMAT_STR), _trade_date_str)
+                # it musts get 15 days price data for no trade data exception, because TSClient can not give data on non-trading date.
+                price_data = get_qfq_close_price(hold.trade_code, (_trade_date - timedelta(15)).strftime(TRADE_DATE_FORMAT_STR), _trade_date_str)
+                if (is_trader_robot(self.u_name)):
+                    close_price = round(float(price_data['qfq'].iloc[-1]), 3)
+                else:
                     close_price = round(float(price_data['close'].iloc[-1]), 3)
-                    hold.close_price = close_price
-                    hold.market_value = round(hold.close_price * hold.hold_amount, 3)
-                    adj_factor = float(price_data['adj_factor'].iloc[-1] / price_data['adj_factor'].iloc[-2])
-                    # only robot trader need process split-adjusted case
-                    if (is_trader_robot(self.u_name)):
-                        if (adj_factor != 1.0):
-                            print('process split-adjusted share prices case: holding code(%s) with trade date(%s), found adj_factor(%d) for portfolio(%s) of user(%s)' % (hold.trade_code, _trade_date_str, adj_factor, self.portfolio_name, self.u_name))
-                            hold.hold_amount = round(hold.hold_amount * adj_factor, 3)
-                            hold.market_value = round(hold.close_price * hold.hold_amount, 3)
-                except Exception as e:
-                    print('Exception: %s' % e)
+                hold.close_price = close_price
+                hold.market_value = round(hold.hold_amount * hold.close_price, 3)
                 # ignore hold amount less than 1 for excluding calculation fragments
                 if (hold.hold_amount <= 1):
                     print('remove hold: %s' % hold.trade_code)

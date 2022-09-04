@@ -2,7 +2,7 @@ import csv
 from os.path import exists
 from operator import itemgetter
 from portfolio.trade_portfolio import Portfolio
-from util.common import trade_date_big, get_trade_close_price
+from util.common import trade_date_big, get_trade_qfq_price
 
 FUNDING_LEDGER_CSV_HEADER = ['trade_date', 'fund_amount', 'fund_type', 'current_available_amount']
 TRANSACTION_LEDGER_CSV_HEADER = ['trade_date', 'trade_code', 'trade_name', 'trade_type', 'trade_amount', 'trade_price', 'current_available_amount']
@@ -32,7 +32,7 @@ def get_trade_sell_price_amount(p: Portfolio, trade_code, trade_date):
         current_available_amount = get_trade_amount_last_transaction_record(p.transaction_local_ledger, trade_code)
         if (current_available_amount is None or current_available_amount <= 0):
             return None, None
-        trade_price = get_trade_close_price(trade_date, trade_code)
+        trade_price = get_trade_qfq_price(trade_date, trade_code)
         return trade_price, current_available_amount
 
 def get_last_trade_date(p: Portfolio):

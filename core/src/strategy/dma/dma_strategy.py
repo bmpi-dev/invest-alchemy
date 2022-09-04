@@ -58,7 +58,7 @@ class DMATradeStrategy(IStrategy):
         except Exception as e:
             print(e)
             return DMATradeSignal(state=TradeSignalState.ERROR, code=code, name=name, message='cannot get price, something wrong happened on ITradeDataClient')
-        qfq_price = np.array(qfq_close_price['close']) # must use close price, not qfq price
+        qfq_price = np.array(qfq_close_price['qfq'])
         time = np.array(qfq_close_price['trade_date'])
         short_ma = np.round(ta.MA(qfq_price, self.__short), 3)
         long_ma = np.round(ta.MA(qfq_price, self.__long), 3)

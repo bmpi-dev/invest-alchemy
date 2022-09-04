@@ -5,7 +5,7 @@ from constants import TRADE_DATE_FORMAT_STR
 from typing import List
 from db import DmaTradeSignalModel
 from trader.trader_util import *
-from util.common import get_trade_close_price, get_trade_date_range
+from util.common import get_trade_qfq_price, get_trade_date_range
 from strategy.trade_signal import TradeSignalState
 import csv
 import traceback
@@ -39,7 +39,7 @@ class DMATraderV01(ITrader):
         if (current_available_amount is not None and current_available_amount > 0):
             raise Exception('already held position, abort to buy for portfolio(%s) of user(%s)' % (p.portfolio_name, p.u_name))
         _, current_available_funding = get_current_available_funding(p.funding_local_ledger)
-        trade_price = get_trade_close_price(trade_date, trade_code)
+        trade_price = get_trade_qfq_price(trade_date, trade_code)
         if (current_available_funding < self.__min_amount_single_trade_target):
             raise Exception('no enough funding, abort to buy for portfolio(%s) of user(%s)' % (p.portfolio_name, p.u_name))
         if (current_available_funding > self.__max_amount_single_trade_target):
