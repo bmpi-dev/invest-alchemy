@@ -246,7 +246,8 @@ class Portfolio:
                             hold.market_value = round(hold.close_price * hold.hold_amount, 3)
                 except Exception as e:
                     print('Exception: %s' % e)
-                if (hold.hold_amount <= 0):
+                # ignore hold amount less than 1 for excluding calculation fragments
+                if (hold.hold_amount <= 1):
                     print('remove hold: %s' % hold.trade_code)
                 else:
                     HoldingLedgerModel.insert(trade_date=hold.trade_date, \
