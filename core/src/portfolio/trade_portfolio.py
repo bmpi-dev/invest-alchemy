@@ -100,14 +100,18 @@ class Portfolio:
                 trade_date_csv = row['trade_date']
                 if (trade_date_big(trade_date_csv, last_trade_date_db)):
                     print('update transaction ledger of portfolio(%s) for user(%s), trade date: %s...' % (self.portfolio_name, self.u_name, trade_date_csv))
-                    trade_amount=round(float(row['trade_amount']), 3)
+                    trade_type = row['trade_type'].lower()
+                    if (trade_type == 'buy'):
+                        trade_amount = abs(round(float(row['trade_amount']), 3)) # plus meaning buy
+                    else:
+                        trade_amount = -1 * abs(round(float(row['trade_amount']), 3)) # minus meaning sell
                     trade_price=round(float(row['trade_price']), 3)
                     trade_money=round(trade_amount * trade_price, 3)
                     current_available_amount=round(float(0 if row['current_available_amount']=='' else row['current_available_amount']), 3)
                     save_db = TransactionLedgerModel(trade_date=trade_date_csv, \
                                                     trade_code=row['trade_code'], \
                                                     trade_name=row['trade_name'], \
-                                                    trade_type=row['trade_type'], \
+                                                    trade_type=trade_type, \
                                                     trade_amount=trade_amount, \
                                                     current_available_amount=current_available_amount, \
                                                     trade_price=trade_price, \
@@ -135,12 +139,16 @@ class Portfolio:
                 trade_date_csv = row['trade_date']
                 if (trade_date_big(trade_date_csv, last_trade_date_db)):
                     print('update funding ledger of portfolio(%s) for user(%s), trade date: %s...' % (self.portfolio_name, self.u_name, trade_date_csv))
-                    fund_amount=round(float(row['fund_amount']), 3)
+                    fund_type = row['fund_type'].lower()
+                    if (fund_type == 'in'):
+                        fund_amount = abs(round(float(row['fund_amount']), 3)) # plus meaning in
+                    else:
+                        fund_amount = -1 * abs(round(float(row['fund_amount']), 3)) # minus meaning out
                     current_available_amount=round(float(0 if row['current_available_amount']=='' else row['current_available_amount']), 3)
                     save_db = FundingLedgerModel(trade_date=trade_date_csv, \
                                                 fund_amount=fund_amount, \
                                                 current_available_amount=current_available_amount, \
-                                                fund_type=row['fund_type'])
+                                                fund_type=fund_type)
                     save_db.save()
 
     def __update_holding_ledger(self, trade_date):
@@ -295,7 +303,7 @@ class Portfolio:
                         funding_change = funding_change + funding.fund_amount
                 for transaction in current_transactions:
                     if (transaction.trade_type == 'buy' or transaction.trade_type == 'sell'):
-                        trade_money_change = trade_money_change - transaction.trade_money
+                        trade_money_change = trade_money_change - transaction.trade_money # minus trade_money meaning sell, plus meaning buy
                 
                 shares_change = round(funding_change / last_net_value.net_value, 3)
 
@@ -305,7 +313,7 @@ class Portfolio:
                     current_hold_assets = current_hold_assets + hold.market_value
 
                 current_total_shares = last_net_value.total_shares + shares_change
-                current_fund_balance = last_net_value.fund_balance + funding_change + trade_money_change
+                current_fund_balance = round(last_net_value.fund_balance + funding_change + trade_money_change, 3)
                 current_total_assets = round(current_hold_assets + current_fund_balance, 3)
                 current_net_value = 1.0 if current_total_shares == 0 else round(current_total_assets / current_total_shares, 3)
                 
