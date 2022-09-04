@@ -10,9 +10,9 @@ def re_bind_db(db_path):
     """
     print('re-bind database, path is (%s)' % db_path)
     portfolio_db.init(db_path, pragmas={'journal_mode': 'wal'})
-    portfolio_db.bind([FundingLedgerModel, TransactionLedgerModel, HoldingLedgerModel, NetValueLedgerModel, PerformanceLedgerModel])
+    portfolio_db.bind([FundingLedgerModel, TransactionLedgerModel, HoldingLedgerModel, NetValueLedgerModel, PerformanceLedgerModel, IndexCompareLedgerModel])
     portfolio_db.connect()
-    portfolio_db.create_tables([FundingLedgerModel, TransactionLedgerModel, HoldingLedgerModel, NetValueLedgerModel, PerformanceLedgerModel])
+    portfolio_db.create_tables([FundingLedgerModel, TransactionLedgerModel, HoldingLedgerModel, NetValueLedgerModel, PerformanceLedgerModel, IndexCompareLedgerModel])
 
 def disconnect_db():
     portfolio_db.close()
@@ -83,4 +83,34 @@ class PerformanceLedgerModel(PortfolioBaseModel):
 
     class Meta:
         table_name = 'portfolio_performance_ledger'
+        primary_key = CompositeKey('trade_date')
+
+class IndexCompareLedgerModel(PortfolioBaseModel):
+    portfolio_nv = FloatField() # portfolio net value
+    zz500 = FloatField() # 000905.SH index point
+    zz500_nv = FloatField() # 000905.SH net value
+    hs300 = FloatField() # 000300.SH index point
+    hs300_nv = FloatField() # 000300.SH net value
+    cyb = FloatField() # 399006.SZ index point
+    cyb_nv = FloatField() # 399006.SZ net value
+    hsi = FloatField() # HSI index point
+    hsi_nv = FloatField() # HSI net value
+    spx = FloatField() # SPX index point
+    spx_nv = FloatField() # SPX net value
+    ixic = FloatField() # IXIC index point
+    ixic_nv = FloatField() # IXIC net value
+    gdaxi = FloatField() # GDAXI index point
+    gdaxi_nv = FloatField() # GDAXI net value
+    n225 = FloatField() # N225 index point
+    n225_nv = FloatField() # N225 net value
+    ks11 = FloatField() # KS11 index point
+    ks11_nv = FloatField() # KS11 net value
+    as51 = FloatField() # AS51 index point
+    as51_nv = FloatField() # AS51 net value
+    sensex = FloatField() # SENSEX index point
+    sensex_nv = FloatField() # SENSEX net value
+    base15_nv = FloatField() # 15% base year net value
+
+    class Meta:
+        table_name = 'portfolio_index_compare_ledger'
         primary_key = CompositeKey('trade_date')

@@ -17,6 +17,7 @@ Invest Alchemy is a trade assistant for A share stock market.
     - [x] Base database store baseline (10%) and popular indexs performance (000905/000300/399006/HSI/IXIC/INX)
   - Portfolio
     - [x] Transaction/Funding/Holding/NetValue/Performance Ledger
+    - [x] Add popular indexs net value compare leader
     - [x] Support trade A share ETF/LOF funds
     - [x] Support trade A share stock
     - [ ] Support trade A public funds (not include ETF/LOF)

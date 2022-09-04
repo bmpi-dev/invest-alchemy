@@ -5,6 +5,7 @@ import botocore
 from constants import S3_BUCKET_NAME
 import os, sys, csv
 from portfolio.portfolio_db import *
+from db import IndexDailyModel
 from util.common import *
 from datetime import datetime, timedelta
 from constants import TRADE_DATE_FORMAT_STR
@@ -70,7 +71,7 @@ class Portfolio:
 
     def finish(self):
         if (exists(self.portfolio_db_local_path)):
-            print('start disconnect database for portfolio(%s) ot user(%s)' % (self.portfolio_name, self.u_name))
+            print('start disconnect database for portfolio(%s) of user(%s)' % (self.portfolio_name, self.u_name))
             disconnect_db()
             print('upload the files to s3 for portfolio(%s) of user(%s)' % (self.portfolio_name, self.u_name))
             db_s3_flag = {'ACL': 'public-read'} if self.portfolio_type == PortfolioType.PUBLIC.value else {}
@@ -407,9 +408,168 @@ class Portfolio:
             except Exception as e:
                 print('Exception: %s' % e)
 
+    def __update_index_compare_ledger(self, trade_date):
+        """Update portfolio index compare ledger on the given trade date
+
+        :param trade_date: trade date
+        :return: None
+        """
+        first_funding = FundingLedgerModel.select().order_by(FundingLedgerModel.trade_date.asc()).get()
+        first_funding_date = first_funding.trade_date
+
+        the_day_before_first_funding = datetime.strptime(first_funding_date, TRADE_DATE_FORMAT_STR) - timedelta(1)
+        last_trade_date_db = the_day_before_first_funding.strftime(TRADE_DATE_FORMAT_STR)
+        
+        try:
+            last_record_db = IndexCompareLedgerModel.select().order_by(IndexCompareLedgerModel.trade_date.desc()).get()
+            last_trade_date_db = last_record_db.trade_date
+        except DoesNotExist:
+            print('no index compare record, init it...')
+            zz500 = IndexDailyModel.select().where(IndexDailyModel.trade_code == '000905.SH', IndexDailyModel.trade_date == last_trade_date_db).get()
+            hs300 = IndexDailyModel.select().where(IndexDailyModel.trade_code == '000300.SH', IndexDailyModel.trade_date == last_trade_date_db).get()
+            cyb = IndexDailyModel.select().where(IndexDailyModel.trade_code == '399006.SZ', IndexDailyModel.trade_date == last_trade_date_db).get()
+            hsi = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'HSI', IndexDailyModel.trade_date == last_trade_date_db).get()
+            spx = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'SPX', IndexDailyModel.trade_date == last_trade_date_db).get()
+            ixic = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'IXIC', IndexDailyModel.trade_date == last_trade_date_db).get()
+            gdaxi = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'GDAXI', IndexDailyModel.trade_date == last_trade_date_db).get()
+            n225 = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'N225', IndexDailyModel.trade_date == last_trade_date_db).get()
+            ks11 = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'KS11', IndexDailyModel.trade_date == last_trade_date_db).get()
+            as51 = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'AS51', IndexDailyModel.trade_date == last_trade_date_db).get()
+            sensex = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'SENSEX', IndexDailyModel.trade_date == last_trade_date_db).get()
+            IndexCompareLedgerModel.insert(trade_date=last_trade_date_db, \
+                                            portfolio_nv=1.0, \
+                                            zz500=zz500.close_price, \
+                                            zz500_nv=1.0, \
+                                            hs300=hs300.close_price, \
+                                            hs300_nv=1.0, \
+                                            cyb=cyb.close_price, \
+                                            cyb_nv=1.0, \
+                                            hsi=hsi.close_price, \
+                                            hsi_nv=1.0, \
+                                            spx=spx.close_price, \
+                                            spx_nv=1.0, \
+                                            ixic=ixic.close_price, \
+                                            ixic_nv=1.0, \
+                                            gdaxi=gdaxi.close_price, \
+                                            gdaxi_nv=1.0, \
+                                            n225=n225.close_price, \
+                                            n225_nv=1.0, \
+                                            ks11=ks11.close_price, \
+                                            ks11_nv=1.0, \
+                                            as51=as51.close_price, \
+                                            as51_nv=1.0, \
+                                            sensex=sensex.close_price, \
+                                            sensex_nv=1.0, \
+                                            base15_nv=1.0, \
+                                            ).on_conflict_replace().execute()
+
+        day_before_start_date = datetime.strptime(last_trade_date_db, TRADE_DATE_FORMAT_STR)
+        start_date = day_before_start_date + timedelta(1)
+        end_date = datetime.strptime(trade_date, TRADE_DATE_FORMAT_STR)
+        days = (end_date - day_before_start_date).days
+
+        if (days <= 0):
+            return
+        
+        for i in range(days):
+            try:
+                _trade_date = start_date + timedelta(i)
+                _day_before_trade_date_str = (_trade_date - timedelta(1)).strftime(TRADE_DATE_FORMAT_STR)
+                _trade_date_str = _trade_date.strftime(TRADE_DATE_FORMAT_STR)
+
+                print('calculate index compare ledger for portfolio(%s) of user(%s), trade date is %s' % (self.portfolio_name, self.u_name, _trade_date_str))
+                
+                if (trade_date_big(first_funding_date, _trade_date_str)):
+                    continue
+
+                first_index_compare_db = IndexCompareLedgerModel.select().order_by(IndexCompareLedgerModel.trade_date.asc()).get()
+                run_days = (_trade_date - datetime.strptime(first_index_compare_db.trade_date, TRADE_DATE_FORMAT_STR)).days
+                base15_nv = round(1.000383 ** run_days, 3)
+
+                last_index_compare_db = IndexCompareLedgerModel.select().order_by(IndexCompareLedgerModel.trade_date.desc()).get()
+
+                try:
+                    net_value = NetValueLedgerModel.select().where(NetValueLedgerModel.trade_date == _trade_date_str).get().net_value
+                except:
+                    net_value = last_index_compare_db.portfolio_nv
+                try:
+                    zz500 = IndexDailyModel.select().where(IndexDailyModel.trade_code == '000905.SH', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    zz500 = last_index_compare_db.zz500
+                try:
+                    hs300 = IndexDailyModel.select().where(IndexDailyModel.trade_code == '000300.SH', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    hs300 = last_index_compare_db.hs300
+                try:
+                    cyb = IndexDailyModel.select().where(IndexDailyModel.trade_code == '399006.SZ', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    cyb = last_index_compare_db.cyb
+                try:
+                    hsi = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'HSI', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    hsi = last_index_compare_db.hsi
+                try:
+                    spx = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'SPX', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    spx = last_index_compare_db.spx
+                try:
+                    ixic = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'IXIC', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    ixic = last_index_compare_db.ixic
+                try:
+                    gdaxi = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'GDAXI', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    gdaxi = last_index_compare_db.gdaxi
+                try:
+                    n225 = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'N225', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    n225 = last_index_compare_db.n225
+                try:
+                    ks11 = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'KS11', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    ks11 = last_index_compare_db.ks11
+                try:
+                    as51 = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'AS51', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    as51 = last_index_compare_db.as51
+                try:
+                    sensex = IndexDailyModel.select().where(IndexDailyModel.trade_code == 'SENSEX', IndexDailyModel.trade_date == _trade_date_str).get().close_price
+                except:
+                    sensex = last_index_compare_db.sensex
+
+                IndexCompareLedgerModel.insert(trade_date=_trade_date_str, \
+                                                portfolio_nv=net_value, \
+                                                zz500=zz500, \
+                                                zz500_nv=round(zz500 / first_index_compare_db.zz500, 3), \
+                                                hs300=hs300, \
+                                                hs300_nv=round(hs300 / first_index_compare_db.hs300, 3), \
+                                                cyb=cyb, \
+                                                cyb_nv=round(cyb / first_index_compare_db.cyb, 3), \
+                                                hsi=hsi, \
+                                                hsi_nv=round(hsi / first_index_compare_db.hsi, 3), \
+                                                spx=spx, \
+                                                spx_nv=round(hsi / first_index_compare_db.hsi, 3), \
+                                                ixic=ixic, \
+                                                ixic_nv=round(ixic / first_index_compare_db.ixic, 3), \
+                                                gdaxi=gdaxi, \
+                                                gdaxi_nv=round(gdaxi / first_index_compare_db.gdaxi, 3), \
+                                                n225=n225, \
+                                                n225_nv=round(n225 / first_index_compare_db.n225, 3), \
+                                                ks11=ks11, \
+                                                ks11_nv=round(ks11 / first_index_compare_db.ks11, 3), \
+                                                as51=as51, \
+                                                as51_nv=round(as51 / first_index_compare_db.as51, 3), \
+                                                sensex=sensex, \
+                                                sensex_nv=round(sensex / first_index_compare_db.sensex, 3), \
+                                                base15_nv=base15_nv, \
+                                                ).on_conflict_replace().execute()
+            except Exception as e:
+                print('Exception: %s' % e)
+
     def update_net_value(self, trade_date):
         self.__update_transaction_ledger(trade_date)
         self.__update_funding_ledger(trade_date)
         self.__update_holding_ledger(trade_date)
         self.__update_net_value_ledger(trade_date)
         self.__update_performance_ledger(trade_date)
+        self.__update_index_compare_ledger(trade_date)

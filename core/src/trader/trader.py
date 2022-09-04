@@ -24,7 +24,7 @@ class ITrader(metaclass=ABCMeta):
     def __init__(self, u_name: str=None):
         """Initialize the trader
 
-        :param u_id: user id, store in the base.db
+        :param u_id: user id, store in the main database
         :return: None
         """
         pass

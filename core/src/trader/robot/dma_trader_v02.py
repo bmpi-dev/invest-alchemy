@@ -63,7 +63,7 @@ class DMATraderV02(ITrader):
                 print(e)
 
     def __generate_transaction_with_strategy_signal(self, p: Portfolio, trade_date):
-        """Generate transaction record with strategy (following the double MA strategy signals stored in base.db) by given trade date, only robot need do this
+        """Generate transaction record with strategy (following the double MA strategy signals stored in main database) by given trade date, only robot need do this
 
         :param trade_date: trade date
         :return: None
