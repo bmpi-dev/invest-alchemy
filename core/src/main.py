@@ -1,5 +1,5 @@
 from storage import upload_file, connect_db, disconnect_db
-from constants import OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM
+from constants import TRADE_DATE_FORMAT_STR, OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM
 from notification import send_sns, send_tg_msg
 from strategy.dma.dma_strategy import DMATradeStrategy
 from message import generate_message_to_file
@@ -8,6 +8,7 @@ from strategy.trade_signal import TradeSignalState
 from client.ts_client import TSClient
 from market.index_daily import IndexDaily
 from os.path import exists
+from datetime import datetime, timedelta
 import os
 
 from trader.robot.dma_trader_v01 import DMATraderV01
@@ -15,7 +16,7 @@ from trader.robot.dma_trader_v02 import DMATraderV02
 
 def robot_trader_portfolio_cal():
     yesterday = datetime.strptime(TODAY_STR, TRADE_DATE_FORMAT_STR) - timedelta(1)
-    yesterday_str = the_day_before_trade_date.strftime(TRADE_DATE_FORMAT_STR)
+    yesterday_str = yesterday.strftime(TRADE_DATE_FORMAT_STR)
 
     trader1 = DMATraderV01()
     trader1.update_portfolios(yesterday_str)
