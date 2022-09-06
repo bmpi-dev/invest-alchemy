@@ -2,10 +2,23 @@ import csv
 from os.path import exists
 from operator import itemgetter
 from portfolio.trade_portfolio import Portfolio
-from util.common import trade_date_big, get_trade_qfq_price
+from util.common import trade_date_big, get_trade_close_price
 
 FUNDING_LEDGER_CSV_HEADER = ['trade_date', 'fund_amount', 'fund_type', 'current_available_amount']
 TRANSACTION_LEDGER_CSV_HEADER = ['trade_date', 'trade_code', 'trade_name', 'trade_type', 'trade_amount', 'trade_price', 'current_available_amount']
+
+def get_current_holdings(transaction_ledger_path):
+    with open(transaction_ledger_path, 'r', newline='') as csvfile:
+        rows = csv.DictReader(csvfile)
+        data = list(rows)
+        current_holdings = {}
+        empty_holding_codes = []
+        for r in reversed(data):
+            if (float(r['current_available_amount']) <= 1):
+                empty_holding_codes.append(r['trade_code'])
+            if (r['trade_code'] not in empty_holding_codes and r['trade_code'] not in current_holdings and float(r['current_available_amount']) > 1):
+                current_holdings[r['trade_code']] = [float(r['current_available_amount']), r['trade_name']]
+        return current_holdings
 
 def __get_trade_target_last_transaction_record(transaction_ledger_path, trade_code):
     with open(transaction_ledger_path, 'r', newline='') as csvfile:
@@ -29,11 +42,11 @@ def get_trade_amount_last_transaction_record(transaction_ledger_path, trade_code
         return round(float(r['current_available_amount']), 3)
 
 def get_trade_sell_price_amount(p: Portfolio, trade_code, trade_date):
-        current_available_amount = get_trade_amount_last_transaction_record(p.transaction_local_ledger, trade_code)
-        if (current_available_amount is None or current_available_amount <= 0):
-            return None, None
-        trade_price = get_trade_qfq_price(trade_date, trade_code)
-        return trade_price, current_available_amount
+    current_available_amount = get_trade_amount_last_transaction_record(p.transaction_local_ledger, trade_code)
+    if (current_available_amount is None or current_available_amount <= 0):
+        return None, None
+    trade_price = get_trade_close_price(trade_date, trade_code)
+    return trade_price, current_available_amount
 
 def get_last_trade_date(p: Portfolio):
     with open(p.transaction_local_ledger, 'r', newline='') as csvfile:

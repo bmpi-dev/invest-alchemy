@@ -9,7 +9,7 @@ from db import IndexDailyModel, PortfolioModel
 from util.common import *
 from datetime import datetime, timedelta
 from constants import TRADE_DATE_FORMAT_STR
-from util.common import get_qfq_close_price, get_trade_close_price, get_trade_qfq_price, CAGR, SHARPE_RATIO, is_trader_robot
+from util.common import get_qfq_close_price, get_trade_close_price, CAGR, SHARPE_RATIO
 import pandas as pd
 from enum import Enum
 
@@ -93,8 +93,7 @@ class Portfolio:
             last_trade_date_db = last_record_db.trade_date
         except DoesNotExist:
             # fix missing record if first funding transcation happened on the create date of the portfolio, because it uses trade_date_big function to determin if the funding ledger needs to update
-            the_day_before_portfolio_create = datetime.strptime(self.create_date, TRADE_DATE_FORMAT_STR) - timedelta(1)
-            last_trade_date_db = the_day_before_portfolio_create.strftime(TRADE_DATE_FORMAT_STR)
+            last_trade_date_db = get_the_day_before_n(self.create_date, 1)
         with open(self.transaction_local_ledger, 'r', newline='') as csvfile:
             rows = csv.DictReader(csvfile)
             for row in rows:
@@ -132,8 +131,7 @@ class Portfolio:
             last_trade_date_db = last_record_db.trade_date
         except DoesNotExist:
             # fix missing record if first funding transcation happened on the create date of the portfolio, because it uses trade_date_big function to determin if the funding ledger needs to update
-            the_day_before_portfolio_create = datetime.strptime(self.create_date, TRADE_DATE_FORMAT_STR) - timedelta(1)
-            last_trade_date_db = the_day_before_portfolio_create.strftime(TRADE_DATE_FORMAT_STR)
+            last_trade_date_db = get_the_day_before_n(self.create_date, 1)
         with open(self.funding_local_ledger, 'r', newline='') as csvfile:
             rows = csv.DictReader(csvfile)
             for row in rows:
@@ -171,10 +169,7 @@ class Portfolio:
                 first_transactions = TransactionLedgerModel.select().where(TransactionLedgerModel.trade_date == first_transaction_date)
                 for transaction in first_transactions:
                     if (transaction.trade_amount > 0):
-                        if (is_trader_robot(self.u_name)):
-                            close_price = get_trade_qfq_price(first_transaction_date, transaction.trade_code)
-                        else:
-                            close_price = get_trade_close_price(first_transaction_date, transaction.trade_code)
+                        close_price = get_trade_close_price(first_transaction_date, transaction.trade_code)
                         market_value = transaction.trade_amount * close_price
                         HoldingLedgerModel.insert(trade_date=first_transaction_date, \
                                                   trade_code=transaction.trade_code, \
@@ -237,10 +232,7 @@ class Portfolio:
             for hold in current_holds:
                 # it musts get 15 days price data for no trade data exception, because TSClient can not give data on non-trading date.
                 price_data = get_qfq_close_price(hold.trade_code, (_trade_date - timedelta(15)).strftime(TRADE_DATE_FORMAT_STR), _trade_date_str)
-                if (is_trader_robot(self.u_name)):
-                    close_price = round(float(price_data['qfq'].iloc[-1]), 3)
-                else:
-                    close_price = round(float(price_data['close'].iloc[-1]), 3)
+                close_price = round(float(price_data['close'].iloc[-1]), 3)
                 hold.close_price = close_price
                 hold.market_value = round(hold.hold_amount * hold.close_price, 3)
                 # ignore hold amount less than 1 for excluding calculation fragments

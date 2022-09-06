@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from constants import TRADE_DATE_FORMAT_STR, RISK_FREE_INVEST_DEPOSIT_RATE
 from client.ts_client import TSClient
 from pandas import DataFrame
@@ -37,3 +37,11 @@ def SHARPE_RATIO(input: DataFrame) -> float:
 
 def is_trader_robot(name):
     return name.startswith('robot_')
+
+def get_the_day_before_n(trade_day_str, n):
+    the_day_before = datetime.strptime(trade_day_str, TRADE_DATE_FORMAT_STR) - timedelta(n)
+    return the_day_before.strftime(TRADE_DATE_FORMAT_STR)
+
+def get_the_day_after_n(trade_day_str, n):
+    the_day_after = datetime.strptime(trade_day_str, TRADE_DATE_FORMAT_STR) + timedelta(n)
+    return the_day_after.strftime(TRADE_DATE_FORMAT_STR)

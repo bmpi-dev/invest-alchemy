@@ -5,7 +5,7 @@ from constants import TRADE_DATE_FORMAT_STR
 from typing import List
 from db import DmaTradeSignalModel
 from trader.trader_util import *
-from util.common import get_trade_qfq_price, get_trade_date_range
+from util.common import get_trade_close_price, get_trade_date_range, get_the_day_after_n, get_the_day_before_n, get_qfq_close_price
 from strategy.trade_signal import TradeSignalState
 import csv
 import traceback
@@ -39,7 +39,7 @@ class DMATraderV02(ITrader):
         if (current_available_amount is not None and current_available_amount > 0):
             raise Exception('already held position, abort to buy for portfolio(%s) of user(%s)' % (p.portfolio_name, p.u_name))
         _, current_available_funding = get_current_available_funding(p.funding_local_ledger)
-        trade_price = get_trade_qfq_price(trade_date, trade_code)
+        trade_price = get_trade_close_price(trade_date, trade_code)
         if (current_available_funding < self.__min_amount_single_trade_target):
             raise Exception('no enough funding, abort to buy for portfolio(%s) of user(%s)' % (p.portfolio_name, p.u_name))
         trade_amount = int(current_available_funding / trade_price / 100) * 100
@@ -75,12 +75,25 @@ class DMATraderV02(ITrader):
                 writer.writeheader()
 
         last_trade_date = get_last_trade_date(p)
-        trade_dates = get_trade_date_range(last_trade_date, trade_date)
+        trade_dates = get_trade_date_range(get_the_day_after_n(last_trade_date, 1), trade_date)
         if (len(trade_dates) < 1):
             print('portfolio(%s) of user(%s) no need to update, because no available trade days...' % (p.portfolio_name, p.u_name))
             return
+        
+        current_holdings = get_current_holdings(p.transaction_local_ledger)
+
         for trade_date in trade_dates:
             print('start process trade date(%s)...' % trade_date)
+            for code in current_holdings.keys():
+                if current_holdings[code][0] > 1:
+                    price_data = get_qfq_close_price(code, get_the_day_before_n(trade_date, 15), trade_date)
+                    adj_factor = float(price_data['adj_factor'].iloc[-1] / price_data['adj_factor'].iloc[-2])
+                    if (adj_factor != 1.0):
+                        print('process split-adjusted share prices case: holding code(%s) with trade date(%s), found adj_factor(%d) for portfolio(%s) of user(%s)' % (code, trade_date, adj_factor, p.portfolio_name, p.u_name))
+                        change_amount = current_holdings[code][0] * adj_factor - current_holdings[code][0]
+                        current_holdings[code][0] = round(current_holdings[code][0] * adj_factor, 3)
+                        update_transaction_ledger({'trade_date': trade_date, 'trade_code': code, 'trade_name': current_holdings[code][1], 'trade_type': 'buy' if change_amount > 0 else 'sell', 'trade_amount': change_amount, 'trade_price': 0.000001}, p.transaction_local_ledger)
+
             buys = DmaTradeSignalModel.select().where(DmaTradeSignalModel.trade_date == trade_date, \
                                                       DmaTradeSignalModel.trade_type == TradeSignalState.BUY.value, \
                                                       DmaTradeSignalModel.trade_code == '159915.SZ')
@@ -92,6 +105,10 @@ class DMATraderV02(ITrader):
                     trade_price, trade_amount = self.__get_trade_buy_price_amount_with_funding_strategy(p, code, trade_date)
                     update_funding_ledger({'trade_date': trade_date, 'fund_amount': -(trade_price * trade_amount), 'fund_type': 'buy'}, p.funding_local_ledger)
                     update_transaction_ledger({'trade_date': trade_date, 'trade_code': code, 'trade_name': name, 'trade_type': 'buy', 'trade_amount': trade_amount, 'trade_price': trade_price}, p.transaction_local_ledger)
+                    if (code in current_holdings):
+                        current_holdings[code][0] = current_holdings[code][0] + trade_amount
+                    else:
+                        current_holdings[code][0] = trade_amount
                 except Exception as e:
                     print(e)
                     # traceback.print_exc()
@@ -109,6 +126,10 @@ class DMATraderV02(ITrader):
                         continue
                     update_funding_ledger({'trade_date': trade_date, 'fund_amount': trade_price * trade_amount, 'fund_type': 'sell'}, p.funding_local_ledger)
                     update_transaction_ledger({'trade_date': trade_date, 'trade_code': code, 'trade_name': name, 'trade_type': 'sell', 'trade_amount': -(trade_amount), 'trade_price': trade_price}, p.transaction_local_ledger)
+                    if (code in current_holdings):
+                        current_holdings[code][0] = current_holdings[code][0] - trade_amount
+                    else:
+                        raise Exception('!!!no holding to sell(code: %s) for portfolio(%s) of user(%s)!!!' % (code, p.portfolio_name, p.u_name))
                 except Exception as e:
                     print(e)
                     # traceback.print_exc()
