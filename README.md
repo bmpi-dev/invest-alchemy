@@ -45,7 +45,8 @@ Invest Alchemy is a trade assistant for A share stock market.
     - [x] Base Database migrate from SQLite to Supabase(PostgreSQL) 
 
 - Bug Fix
-  - [x] Trading signals error when double ma price are same
+  - [x] Trading signals error when double ma price are same.
+  - [ ] Portfolio performance ledger max_days_of_continuous_loss calculation error, max is 5, because the days_of_continuous_loss will set to 0 when on non-trade days.
 
 ## Note
 
