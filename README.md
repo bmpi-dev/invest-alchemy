@@ -57,6 +57,10 @@ Invest Alchemy is a trade assistant for A share stock market.
 
 - Issue
   - **Split-adjusted share prices**: Use `qfq` adjust price to generate trade signals.
+  
+- Note
+  - Why the trade strategy may not good at trading stock?
+    - Compare index, stocks have the liquidity problem and suspension risk. Liquidity can lead to a huge gap between simulated trading and actual trading results, suspension will result in inability to trade, producing results that are completely different from simulated trading.
 
 ### Portfolio
 
