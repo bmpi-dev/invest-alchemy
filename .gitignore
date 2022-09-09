@@ -28,6 +28,5 @@ node_modules/
 .terraform/
 
 .metals/
-.vscode/
 
 .idea

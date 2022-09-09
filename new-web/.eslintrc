@@ -1,7 +1,6 @@
 {
   // Configuration for JavaScript files
   "extends": [
-    "next",
     "airbnb-base",
     "next/core-web-vitals",
     "plugin:prettier/recommended"
