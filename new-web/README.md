@@ -1,198 +1,189 @@
-# Next.js Advanced Starter 🚀
+# Landing Page Template built with Next JS 12+, Tailwind CSS 3 and TypeScript [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40Ixartz)](https://twitter.com/ixartz)
 
-An opinionated starter skeleton with advanced features for Next.js.
+<p align="center">
+  <a href="https://creativedesignsguru.com/demo/nextjs-landing-page/"><img src="public/assets/images/nextjs-landing-page-banner.png?raw=true" alt="Next js starter banner"></a>
+</p>
 
-Use Tailwind CSS, ESLint, Prettier & absolute imports instantly.
-Easily extendable zero-config template for pros and beginners.
+🚀 Landing Page theme written in Next.js, Tailwind CSS and TypeScript ⚡️ Made with developer experience first: Next.js, TypeScript, ESLint, Prettier, Husky, Lint-Staged, VSCode, Netlify, PostCSS, Tailwind CSS.
 
-Check out the [Demo website.](https://nextjs-advanced-starter.vercel.app/)
+Clone this project and use it to create your own [Next.js](https://nextjs.org) project. You can check a [Next js templates demo](https://creativedesignsguru.com/demo/nextjs-landing-page/).
 
-## Table of Contents
+### DEMO
 
-- [Next.js Advanced Starter 🚀](#nextjs-advanced-starter-)
-  - [Table of Contents](#table-of-contents)
-  - [Why?](#why)
-  - [Features](#features)
-  - [Who this template is for](#who-this-template-is-for)
-  - [How to use](#how-to-use)
-  - [Explanation why some dependencies are in this template](#explanation-why-some-dependencies-are-in-this-template)
-    - [@tailwindcss/forms](#tailwindcssforms)
-    - [@tailwindcss/typography](#tailwindcsstypography)
-  - [Extending the template](#extending-the-template)
-    - [Config files](#config-files)
-    - [Changing the font](#changing-the-font)
-    - [Configuring ESLint rules](#configuring-eslint-rules)
-    - [Adding new absolute import paths](#adding-new-absolute-import-paths)
-  - [Recommended extensions for VSCode](#recommended-extensions-for-vscode)
-  - [Resources](#resources)
+[![Nextjs Landing Page Template Screenshot](public/assets/images/nextjs-landing-page-screenshot.png?raw=true)](https://creativedesignsguru.com/demo/nextjs-landing-page/)
 
-## Why?
+Check out our [live demo](https://creativedesignsguru.com/demo/nextjs-landing-page/).
 
-This template aims to provide a minimal well-thought-out base for building advanced Next.js powered websites.
+### Features
 
-It feels like there are so many templates and tutorials about configuring stacks out there that just don't work, no matter what you do. This is the template that **just works**. I know how frustrating it can be just wanting to build something but needing DAYS for coming up with the initial configuration. Especially getting Eslint + Prettier + absolute imports to work (well) together is super annoying and I believe using these features should be as simple as clicking a button. Also you probably want to style your webapp and there are few better ways than styling it with Tailwind CSS.
+Developer experience first:
 
-The reason why I created this template in the first place is because I absolutely hate having to copy the same config over to a new project everytime and I don't really want to use existing templates because there always seems to be something wrong with them. Either the config is weird or the maintainers are not transparent with features.
+- 🔥 [Next.js](https://nextjs.org) for Static Site Generator
+- 🎨 Integrate with [Tailwind CSS](https://tailwindcss.com)
+- 💅 PostCSS for processing Tailwind CSS and integrated to `styled-jsx`
+- 🎉 Type checking [TypeScript](https://www.typescriptlang.org)
+- ✅ Strict Mode for TypeScript and React 17
+- ✏️ Linter with [ESLint](https://eslint.org) (default NextJS, NextJS Core Web Vitals and Airbnb configuration)
+- 🛠 Code Formatter with [Prettier](https://prettier.io)
+- 🦊 Husky for Git Hooks
+- 🚫 Lint-staged for running linters on Git staged files
+- 🗂 VSCode configuration: Debug, Settings, Tasks and extension for PostCSS, ESLint, Prettier, TypeScript
+- 🤖 SEO metadata, JSON-LD and Open Graph tags with Next SEO
+- ⚙️ [Bundler Analyzer](https://www.npmjs.com/package/@next/bundle-analyzer)
+- 🖱️ One click deployment with Vercel or Netlify (or manual deployment to any hosting services)
+- 🌈 Include a FREE theme
+- 💯 Maximize lighthouse score
 
-**Inviting you to collaborate**
-That being said I invite you to leave your critique about this template. If there's something wrong with ESLint, if prettier doesn't work as expected, if there's a new version of React or if the README is not transparent enough please don't hesitate to open an issue or (even better) a pull request. I've had enough with templates that don't work.
+Built-in feature from Next.js:
 
-## Features
+- ☕ Minify HTML & CSS
+- 💨 Live reload
+- ✅ Cache busting
 
-- Fast design workflow with Tailwind CSS 3.0
-  - write css like the cool kids
-  - unused classes are purged automatically = really small css bundle size
-- TypeScript
-  - typed JavaScript
-  - drastically reduces errors
-  - #1 must have in any web-dev project
-- Customizable ESLint config
-- Code formatting with Prettier
-  - Code is auto-formatted on save
-- Inter font
-  - Nice looking apple-like open source font.
-  - Don't like it? It's easily [replacable](#changing-the-font)
-- Standardized absolute imports
-  - Import from @components/MyComp instead of ../../components/MyComp
+### Included Components
 
-## Who this template is for
+- Navbar
+- Hero
+- Features
+- CTA banner
+- Footer
 
-**TLDR** This template is for beginners and pros alike. For Pros: You don't have to copy the same config over to a new project. For Beginners: Start coding like the pros without having to configure anything.
+Find more components in our [premium NextJS themes](https://creativedesignsguru.com/category/nextjs/).
 
-If you're a newcomer to Next.js or React and you just want to start building something, this is a great place to start without worrying about configuring rules, code-formatting, css purging etc. You can figure that out later, just get developing and build things people love. I personally feel like that the features in this template are the way to go for starting a new web-dev project. Especially tailwind css has seen explosive growth and is probably going to be the standard way of styling webapps in the future. This is the minimal base-template I wish I've had when I started developing with React.
+### Philosophy
 
-If you're already a pro, this is the base-template for you. It's incredibly easy to extend or reconfigure. It's deliberately kept small so it stays performant while you build on top of it.
+- Minimal code
+- SEO-friendly
+- 🚀 Production-ready
 
-## How to use
+### Nextless.js SaaS Boilerplate
 
-1. Click **"Use this Template"** button which will create a new github repo for you automatically
-2. Pull the newly created repo by following the github guide which will be shown after you finish step 1.
-3. Install dependencies and run dev server:
+Build your SaaS product faster with [React SaaS Boilerplate](https://nextlessjs.com).
 
-```bash
+[![React SaaS Boilerplate Next.js](https://creativedesignsguru.com/assets/images/themes/next-js-saas-starter-kit.jpg)](https://nextlessjs.com)
+
+### Premium Themes
+
+| [Green Nextjs Landing Page Template](https://creativedesignsguru.com/landing-green-modern-nextjs-theme/) | [Purple Saas Nextjs Theme](https://creativedesignsguru.com/landing-purple-modern-react-theme/) |
+| --- | --- |
+| [![Green Nextjs Landing Page Template](https://creativedesignsguru.com/assets/images/themes/landing-green-modern-nextjs-theme-xs.png)](https://creativedesignsguru.com/landing-green-modern-nextjs-theme/) | [![Blue Landing Page Nextjs Theme](https://creativedesignsguru.com/assets/images/themes/landing-blue-modern-nextjs-theme-xs.png)](https://creativedesignsguru.com/landing-blue-modern-react-theme/) |
+
+Find more [Nextjs Templates](https://creativedesignsguru.com/category/nextjs/).
+
+### Requirements
+
+- Node.js and npm
+
+### Getting started
+
+Run the following command on your local environment:
+
+```
+git clone --depth=1 https://github.com/ixartz/Next-JS-Landing-Page-Starter-Template.git my-project-name
+cd my-project-name
 npm install
-# or
-yarn install
+```
 
-# then
+Then, you can run locally in development mode with live reload:
+
+```
 npm run dev
-# or
-yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 with your favorite browser to see your project. For your information, Next JS need to take some time to compile the project for your first time.
 
-## Explanation why some dependencies are in this template
-
-### @tailwindcss/forms
-
-First party dependency for resetting input styles so you don't have to manually reset like this:
-
-```css
-textarea,
-input[type="text"],
-input[type="search"],
-input[type="button"],
-input[type="submit"] {
-  -webkit-appearance: none;
-  border-radius: 0;
-}
+```
+.
+├── README.md            # README file
+├── next.config.js       # Next JS configuration
+├── public               # Public folder
+│   └── assets
+│       └── images       # Image used by default template
+├── src
+│   ├── background       # Atomic background component
+│   ├── button           # Atomic button component
+│   ├── cta              # Atomic cta component
+│   ├── feature          # Atomic feature component
+│   ├── footer           # Atomic footer component
+│   ├── hero             # Atomic hero component
+│   ├── layout           # Atomic layout component
+│   ├── navigation       # Atomic navigation component
+│   ├── pages            # Next JS pages
+│   ├── styles           # PostCSS style folder with Tailwind
+│   ├── templates        # Default template
+│   └── utils            # Utility folder
+├── tailwind.config.js   # Tailwind CSS configuration
+└── tsconfig.json        # TypeScript configuration
 ```
 
-### @tailwindcss/typography
+### Customization
 
-A Tailwind CSS plugin for automatically styling plain HTML content with beautiful typographic defaults. Just add the class "prose" to your html and content will be styled automatically.
+You can easily configure the theme. Please change the following file:
 
-E.g this html:
+- `public/apple-touch-icon.png`, `public/favicon.ico`, `public/favicon-16x16.png` and `public/favicon-32x32.png`: your favicon, you can generate from https://favicon.io/favicon-converter/
+- `src/styles/global.css`: your CSS file using Tailwind CSS
+- `utils/AppConfig.ts`: configuration file
+- `src/pages/index.tsx`: the index page of the theme that uses the `Base` component
+- `src/template/Base.tsx`: the `Base` component using component blocks
+- `src/templates/*`: the list of component blocks
+- `src/*`: other folders in src are the atomic components used by components blocks
 
-```html
-<article class="prose lg:prose-xl">
-  <h1>How to set up an enterprise Next.js stack</h1>
-  <p>
-    Configuring Next.js with TypeScript, ESLint & prettier can become really
-    annoying, especially if you're a beginner and don't know the intricate
-    details of all the moving parts in a web-dev environment. The most important
-    things you have to set up are:
-  </p>
-  <ul>
-    <li>A working ESLint config</li>
-    <li>Prettier plugins that auto-format your code</li>
-    <li>Absolute imports</li>
-  </ul>
-</article>
+Here is the layer:
+
+- the entry point: `index.tsx` in `src/pages`
+- the `Base` template: `Base.tsx` in `src/templates`
+- use component blocks from `src/templates/*`
+- use atomic components from `src/*`
+
+### Deploy to production
+
+You can see the results locally in production mode with:
+
+```
+$ npm run build
+$ npm run start
 ```
 
-will be rendered like this:
+The generated HTML and CSS files are minified (built-in feature from Next js). It will also removed unused CSS from [Tailwind CSS](https://tailwindcss.com).
 
-![prose output](https://i.imgur.com/xJD5Ojv.png)
+You can create an optimized production build with:
 
-If you don't need or want this dependency you can safely remove it.
-
-## Extending the template
-
-### Config files
-
-| File name               | What it does                                                                                              |
-| ----------------------- | --------------------------------------------------------------------------------------------------------- |
-| `tsconfig.json`         | TypeScript configuration. Tells IDE which absolute imports exist and works in conjunction with .babelrc   |
-| `.eslintrc.json`        | Config file for finding and fixing problems in code. E.g: No function should be used before it's defined. |
-| `tailwind.config.js`    | TailwindCSS config. Adds new sizes, shadows, borders etc. to your tailwind classes.                       |
-| `postcss.config.js`     | Tells your project to include TailwindCSS in build chain.                                                 |
-| `prettier.config.js`    | Rules for formatting your code. E.g: indent code 6 spaces instead of 4                                    |
-| `.vscode/settings.json` | Custom settings for your VSCode workspace. Tells VSCode to auto-format code on save.                      |
-
-### Changing the font
-
-1. In `src/pages/_app.tsx` replace the link tag with your url (can be Google Fonts, Adobe Typekit, etc.)
-
-```html
-<link
-  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-  rel="stylesheet"
-/>
+```
+npm run build-prod
 ```
 
-2. In tailwind.config.js replace "Inter" with your custom font
+Now, your theme is ready to be deployed. All generated files are located at `out` folder, which you can deploy with any hosting service.
 
-```javascript
-extend: {
-  fontFamily: {
-    sans: ["Inter", ...defaultTheme.fontFamily.sans],
-}
-```
+### Deploy to Netlify
 
-As of Next 10.0.2 google fonts are optimized automatically: <https://nextjs.org/blog/next-10-2#automatic-webfont-optimization>
+Clone this repository on own GitHub account and deploy to Netlify:
 
-Tip: The font you choose should have at least these weights: 400, 500, 600, 700, 800. You need these weights for the tailwind font classes to have an effect. E.g if you don't include the weight 500, the class "font-medium" won't have any effect.
+[![Netlify Deploy button](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/ixartz/Next-JS-Landing-Page-Starter-Template)
 
-### Configuring ESLint rules
+### Deploy to Vercel
 
-If you need additional rules or want to turn off specific rules just edit `.eslintrc.js`. Only change the order of plugins and items in the "extends" array if you know what you're doing as this can have unexpected side effects: Items lower down the list override previous extensions. This is the intended behaviour so you can extend and configure existing rules easily.
+Deploy this Next JS Boilerplate on Vercel in one click:
 
-### Adding new absolute import paths
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2Fixartz%2FNext-JS-Landing-Page-Starter-Template)
 
-This will instruct Next.js to set up a new alias to your specific folder. If you try to import a file with @myalias now it will still throw an error however because we need to tell our IDE that this path actually exists:
+### VSCode information (optional)
 
-Add path in `.tsconfig`
+If you are VSCode users, you can have a better integration with VSCode by installing the suggested extension in `.vscode/extension.json`. The starter code comes up with Settings for a seamless integration with VSCode. The Debug configuration is also provided for frontend and backend debugging experience.
 
-```javascript
-"@myalias/*": ["./src/myaliasfolder/*"]
-```
+Pro tips: if you need a project wide type checking with TypeScript, you can run a build with <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd> on Mac.
 
-That's it! Nextjs 11 now automatically sets up babel and everything else and just works. In previous releases you had to manually configure babel as well.
+### Contributions
 
-## Recommended extensions for VSCode
+Everyone is welcome to contribute to this project. Feel free to open an issue if you have question or found a bug.
 
-If you're a beginner and don't know which extensions you need, definitely install these:
+### License
 
-1. [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint): Adds error highlighting to VSCode.
-2. [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode): Auto-fixes formatting errors everytime you hit save.
-3. [TailwindCSS Intellisense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss): Tailwind className suggestions as you type.
+Licensed under the MIT License, Copyright © 2022
 
-## Resources
+See [LICENSE](LICENSE) for more information.
 
-If you're not yet familiar with some of the technologies used in this project here are some resources to help you get started:
+---
 
-[Tailwind CSS course](https://tailwindcss.com/course): Free course by the creators of tailwind. Definitely check it out. It helps you "think" in tailwind. E.g before going through this course I styled my webapps by adding classes from the beginning. However, a much better approach is to 1) semantically structure your html without any classes and 2) to then add styling by using tailwind classes.
+Made with ♥ by [CreativeDesignsGuru](https://creativedesignsguru.com) [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40Ixartz)](https://twitter.com/ixartz)
 
-[ESLint config guide](https://eslint.org/docs/user-guide/configuring): If you need to configure ESLint read their documentation (or at least the parts you need). You'll be surprised how much just makes sense after that.
+[![Sponsor Next JS Boilerplate](https://cdn.buymeacoffee.com/buttons/default-red.png)](https://www.buymeacoffee.com/ixartz)
