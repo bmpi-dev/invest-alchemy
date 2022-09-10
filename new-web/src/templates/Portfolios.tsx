@@ -13,7 +13,7 @@ const Portfolios = () => {
         title={PortfolioConfig.p1.title}
         description={PortfolioConfig.p1.description}
         link={`${router.basePath}/portfolio?t=${PortfolioConfig.p1.traderName}&p=${PortfolioConfig.p1.portfolioName}`}
-        netValue={'1.0'}
+        netValue={''}
         updateDate={''}
         createDate={''}
         image="/assets/images/feature.svg"
@@ -23,7 +23,7 @@ const Portfolios = () => {
         title={PortfolioConfig.p2.title}
         description={PortfolioConfig.p2.description}
         link={`${router.basePath}/portfolio?t=${PortfolioConfig.p2.traderName}&p=${PortfolioConfig.p2.portfolioName}`}
-        netValue={'1.0'}
+        netValue={''}
         updateDate={''}
         createDate={''}
         image="/assets/images/feature2.svg"
@@ -34,7 +34,7 @@ const Portfolios = () => {
         title={PortfolioConfig.p3.title}
         description={PortfolioConfig.p3.description}
         link={`${router.basePath}/portfolio?t=${PortfolioConfig.p3.traderName}&p=${PortfolioConfig.p3.portfolioName}`}
-        netValue={'1.0'}
+        netValue={''}
         updateDate={''}
         createDate={''}
         image="/assets/images/feature3.svg"
