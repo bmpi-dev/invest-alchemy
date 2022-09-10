@@ -12,13 +12,8 @@ const Hero = () => (
     <Section yPadding="py-6">
       <NavbarTwoColumns logo={<Logo xl />}>
         <li>
-          <Link href="https://github.com/ixartz/Next-JS-Landing-Page-Starter-Template">
+          <Link href="https://github.com/bmpi-dev/invest-alchemy">
             <a>GitHub</a>
-          </Link>
-        </li>
-        <li>
-          <Link href="/">
-            <a>Sign in</a>
           </Link>
         </li>
       </NavbarTwoColumns>
@@ -28,15 +23,15 @@ const Hero = () => (
       <HeroOneButton
         title={
           <>
-            {'The modern landing page for\n'}
-            <span className="text-primary-500">React developers</span>
+            {'构建你的\n'}
+            <span className="text-primary-500">交易系统</span>
           </>
         }
-        description="The easiest way to build a React landing page in seconds."
+        description="交易策略 / 资金策略 / 风险评估 / 交易评测 / 投资组合"
         button={
-          <Link href="https://creativedesignsguru.com/category/nextjs/">
+          <Link href="https://money.i365.tech/">
             <a>
-              <Button xl>Download Your Free Theme</Button>
+              <Button xl>订阅交易策略</Button>
             </a>
           </Link>
         }

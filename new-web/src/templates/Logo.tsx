@@ -12,24 +12,12 @@ const Logo = (props: ILogoProps) => {
 
   return (
     <span className={`text-gray-900 inline-flex items-center ${fontStyle}`}>
-      <svg
-        className="text-primary-500 stroke-current mr-1"
-        xmlns="http://www.w3.org/2000/svg"
+      <img
+        alt="logo"
         width={size}
         height={size}
-        viewBox="0 0 24 24"
-        strokeWidth="1.5"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M0 0h24v24H0z" stroke="none" />
-        <rect x="3" y="12" width="6" height="8" rx="1" />
-        <rect x="9" y="8" width="6" height="12" rx="1" />
-        <rect x="15" y="4" width="6" height="16" rx="1" />
-        <path d="M4 20h14" />
-      </svg>
-
+        src="data:image/png;base64,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"
+      />
       {AppConfig.site_name}
     </span>
   );

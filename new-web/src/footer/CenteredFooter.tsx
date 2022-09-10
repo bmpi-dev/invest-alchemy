@@ -6,7 +6,7 @@ import { FooterIconList } from './FooterIconList';
 type ICenteredFooterProps = {
   logo: ReactNode;
   iconList: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
 };
 
 const CenteredFooter = (props: ICenteredFooterProps) => (
