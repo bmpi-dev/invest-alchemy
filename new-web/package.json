@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "classnames": "^2.3.1",
+    "echarts": "^5.3.3",
+    "echarts-for-react": "^3.0.2",
     "next": "^12.3.0",
     "next-seo": "^4.29.0",
     "react": "^17.0.2",

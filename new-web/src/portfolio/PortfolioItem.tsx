@@ -29,7 +29,7 @@ const PortfolioItem = (props: IPortfolioProps) => {
 
   return (
     <div className={verticalFeatureClass}>
-      <div className="w-full sm:w-1/2 text-left sm:px-6">
+      <div className="w-full sm:w-1/2 text-center sm:text-left sm:px-6">
         <button className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
           <Link href={props.link}>{props.title}</Link>
         </button>
