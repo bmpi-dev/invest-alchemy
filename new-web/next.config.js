@@ -12,3 +12,13 @@ module.exports = withBundleAnalyzer({
   // You can remove `basePath` if you don't need it.
   reactStrictMode: true,
 });
+
+module.exports = {
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // eslint-disable-next-line no-param-reassign
+      config.resolve.fallback.fs = false;
+    }
+    return config;
+  },
+};

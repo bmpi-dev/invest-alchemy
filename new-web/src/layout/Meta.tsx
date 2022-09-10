@@ -50,7 +50,7 @@ const Meta = (props: IMetaProps) => {
       <NextSeo
         title={props.title}
         description={props.description}
-        canonical={props.canonical}
+        canonical={props.canonical || router.asPath}
         openGraph={{
           title: props.title,
           description: props.description,
