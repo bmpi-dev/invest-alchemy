@@ -9,11 +9,16 @@ import { AppConfig } from '../utils/AppConfig';
 import { Footer } from './Footer';
 import { Header } from './Header';
 
+type IResultsTableProps = {
+  columns: string[];
+  values: any[][];
+};
+
 /**
  * Renders a single value of the array returned by db.exec(...) as a table
  * @param {import("sql.js").QueryExecResult} props
  */
-function ResultsTable({ columns, values }) {
+function ResultsTable({ columns, values }: IResultsTableProps) {
   return (
     <table>
       <thead>
@@ -29,8 +34,8 @@ function ResultsTable({ columns, values }) {
           // values is an array of arrays representing the results of the query
           values.map((row, i) => (
             <tr key={i}>
-              {row.map((value, i) => (
-                <td key={i}>{value}</td>
+              {row.map((value, j) => (
+                <td key={j}>{value}</td>
               ))}
             </tr>
           ))
@@ -41,7 +46,6 @@ function ResultsTable({ columns, values }) {
 }
 
 const Portfolio = () => {
-  const [db, setDb] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<any>(null);
   const [results, setResults] = useState([]);
@@ -77,7 +81,6 @@ const Portfolio = () => {
       const dataPromise = fetch(dbURL).then((res) => res.arrayBuffer());
       const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
       const sqlDB = new SQL.Database(new Uint8Array(buf));
-      setDb(sqlDB);
       setLoading(false);
       exec(
         sqlDB,
