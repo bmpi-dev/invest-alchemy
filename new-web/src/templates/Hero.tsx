@@ -12,8 +12,16 @@ const Hero = () => (
     <Section yPadding="py-6">
       <NavbarTwoColumns logo={<Logo xl />}>
         <li>
-          <Link href="https://github.com/bmpi-dev/invest-alchemy">
+          <Link
+            href="https://github.com/bmpi-dev/invest-alchemy"
+            className="mr-2"
+          >
             <a>GitHub</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="https://t.me/improve365">
+            <a>Telegram</a>
           </Link>
         </li>
       </NavbarTwoColumns>
