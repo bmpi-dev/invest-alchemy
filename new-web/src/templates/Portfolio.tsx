@@ -22,6 +22,10 @@ const Portfolio = () => {
   const [latestTradeDate, setLatestTradeDate] = useState<string>();
   const [firstFundingDate, setFirstFundingDate] = useState<string>();
   const [performance, setPerformance] = useState<string[]>();
+  const [currentTab, setCurrentTab] = useState<string>('transaction');
+  const [transactions, setTransactions] = useState<string[]>();
+  const [holdings, setHoldings] = useState<string[]>();
+  const [fundings, setFundings] = useState<string[]>();
 
   function exec(sqlDB: any, sql: string) {
     const results = sqlDB.exec(sql);
@@ -71,6 +75,21 @@ const Portfolio = () => {
           'select retracement_range, max_retracement_range, cagr, sharpe_ratio, total_trade_count, days_of_win, days_of_loss, run_days from portfolio_performance_ledger order by trade_date desc limit 1'
         )[0].values[0]; // @ts-ignore
         setPerformance(portfolioPerformance);
+        // @ts-ignore
+        const portfolioTransactions: string[] = sqlDB.exec(
+          'select trade_date, trade_code, trade_name, trade_type, trade_amount, trade_price, trade_money from portfolio_transaction_ledger order by trade_date desc'
+        )[0].values; // @ts-ignore
+        setTransactions(portfolioTransactions);
+        // @ts-ignore
+        const portfolioHoldings: string[] = sqlDB.exec(
+          'select trade_date, trade_code, trade_name, hold_amount, close_price, market_value from portfolio_holding_ledger order by trade_date desc limit 1000'
+        )[0].values; // @ts-ignore
+        setHoldings(portfolioHoldings);
+        // @ts-ignore
+        const portfolioFundings: string[] = sqlDB.exec(
+          'select trade_date, fund_type, fund_amount from portfolio_funding_ledger order by trade_date desc'
+        )[0].values; // @ts-ignore
+        setFundings(portfolioFundings);
         const optionsData = {
           grid: {
             top: 100,
@@ -384,6 +403,198 @@ const Portfolio = () => {
         <div className="sm:w-9/12 w-11/12">
           {!loading && (
             <ReactECharts option={options} style={{ height: 800 }} />
+          )}
+        </div>
+
+        <div className="sm:w-9/12 w-11/12 mt-20 mb-20">
+          {!loading && (
+            <nav className="flex text-base font-bold border-b border-gray-100">
+              <button
+                onClick={() => {
+                  setCurrentTab('transaction');
+                }}
+                className={
+                  currentTab === 'transaction'
+                    ? 'p-4 -mb-px border-b border-current text-yellow-500'
+                    : 'p-4 -mb-px border-b border-transparent hover:text-yellow-500'
+                }
+              >
+                历史交易
+              </button>
+
+              <button
+                onClick={() => {
+                  setCurrentTab('holding');
+                }}
+                className={
+                  currentTab === 'holding'
+                    ? 'p-4 -mb-px border-b border-current text-yellow-500'
+                    : 'p-4 -mb-px border-b border-transparent hover:text-yellow-500'
+                }
+              >
+                历史持仓
+              </button>
+
+              <button
+                onClick={() => {
+                  setCurrentTab('funding');
+                }}
+                className={
+                  currentTab === 'funding'
+                    ? 'p-4 -mb-px border-b border-current text-yellow-500'
+                    : 'p-4 -mb-px border-b border-transparent hover:text-yellow-500'
+                }
+              >
+                资金流水
+              </button>
+            </nav>
+          )}
+          {currentTab === 'transaction' && (
+            <div className="overflow-x-auto mt-5">
+              <table className="min-w-full text-sm border border-gray-100 divide-y-2 divide-gray-200">
+                <thead>
+                  <tr className="divide-x divide-gray-100">
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      日期
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      代码
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      名称
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      类型
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      数量
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      价格
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      金额
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-200">
+                  {transactions?.map((transaction, i) => (
+                    <tr className="divide-x divide-gray-100" key={i}>
+                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        {transaction[0]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {transaction[1]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {transaction[2]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {transaction[3]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {transaction[4]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {transaction[5]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {transaction[6]}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {currentTab === 'holding' && (
+            <div className="overflow-x-auto mt-5">
+              <table className="min-w-full text-sm border border-gray-100 divide-y-2 divide-gray-200">
+                <thead>
+                  <tr className="divide-x divide-gray-100">
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      日期
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      代码
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      名称
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      持仓数量
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      收盘价
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      市值
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-200">
+                  {holdings?.map((holding, i) => (
+                    <tr className="divide-x divide-gray-100" key={i}>
+                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        {holding[0]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {holding[1]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {holding[2]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {holding[3]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {holding[4]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {holding[5]}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {currentTab === 'funding' && (
+            <div className="overflow-x-auto mt-5">
+              <table className="min-w-full text-sm border border-gray-100 divide-y-2 divide-gray-200">
+                <thead>
+                  <tr className="divide-x divide-gray-100">
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      日期
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      类型
+                    </th>
+                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
+                      金额
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-200">
+                  {fundings?.map((funding, i) => (
+                    <tr className="divide-x divide-gray-100" key={i}>
+                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        {funding[0]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {funding[1]}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                        {funding[2]}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>
