@@ -81,6 +81,8 @@ const Portfolio = () => {
           },
           yAxis: {
             type: 'value',
+            min: 'dataMin',
+            max: 'dataMax',
           },
           series: [
             {
