@@ -22,8 +22,19 @@ export const PortfolioConfig = {
   },
 };
 
-export const getPortfolioByName = (name: string): any => {
-  if (name === PortfolioConfig.p1.portfolioName) return PortfolioConfig.p1;
-  if (name === PortfolioConfig.p2.portfolioName) return PortfolioConfig.p2;
+export const getPortfolioByName = (
+  traderName: string,
+  portfolioName: string
+): any => {
+  if (
+    traderName === PortfolioConfig.p1.traderName &&
+    portfolioName === PortfolioConfig.p1.portfolioName
+  )
+    return PortfolioConfig.p1;
+  if (
+    traderName === PortfolioConfig.p2.traderName &&
+    portfolioName === PortfolioConfig.p2.portfolioName
+  )
+    return PortfolioConfig.p2;
   return PortfolioConfig.p3;
 };

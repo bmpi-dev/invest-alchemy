@@ -12,11 +12,16 @@ import { Footer } from './Footer';
 import { Header } from './Header';
 
 const Portfolio = () => {
+  const router = useRouter();
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<any>(null);
   const [options, setOptions] = useState({});
   const [portfolio, setPortfolio] = useState<any>();
-  const router = useRouter();
+  const [netValue, setNetValue] = useState<string>();
+  const [latestTradeDate, setLatestTradeDate] = useState<string>();
+  const [firstFundingDate, setFirstFundingDate] = useState<string>();
+  const [performance, setPerformance] = useState<string[]>();
 
   function exec(sqlDB: any, sql: string) {
     const results = sqlDB.exec(sql);
@@ -31,7 +36,9 @@ const Portfolio = () => {
         const traderName = router.query.t as string;
         const portfolioName = router.query.p as string;
 
-        setPortfolio(getPortfolioByName(portfolioName));
+        if (!traderName && !portfolioName) return;
+
+        setPortfolio(getPortfolioByName(traderName, portfolioName));
 
         const sqlPromise = initSqlJs({
           // Fetch sql.js wasm file from CDN
@@ -47,12 +54,29 @@ const Portfolio = () => {
         //   sqlDB,
         //   'select portfolio_nv, zz500_nv, hs300_nv, cyb_nv, hsi_nv, spx_nv, ixic_nv, gdaxi_nv, n225_nv, ks11_nv, as51_nv, sensex_nv, base15_nv from portfolio_index_compare_ledger order by trade_date;'
         // );
+        const netValueResult = sqlDB.exec(
+          'select trade_date, net_value from portfolio_net_value_ledger order by trade_date desc limit 1'
+        )[0];
+        // @ts-ignore
+        setLatestTradeDate(netValueResult.values[0][0]);
+        // @ts-ignore
+        setNetValue(netValueResult.values[0][1]);
+        // @ts-ignore
+        const firstTradeDate = sqlDB.exec(
+          'select trade_date from portfolio_funding_ledger order by trade_date asc limit 1'
+        )[0].values[0][0]; // @ts-ignore
+        setFirstFundingDate(firstTradeDate);
+        // @ts-ignore
+        const portfolioPerformance: string[] = sqlDB.exec(
+          'select retracement_range, max_retracement_range, cagr, sharpe_ratio, total_trade_count, days_of_win, days_of_loss, run_days from portfolio_performance_ledger order by trade_date desc limit 1'
+        )[0].values[0]; // @ts-ignore
+        setPerformance(portfolioPerformance);
         const optionsData = {
           grid: {
             top: 100,
-            right: 8,
+            right: 10,
             bottom: 24,
-            left: 36,
+            left: 40,
           },
           legend: {
             data: [
@@ -273,7 +297,7 @@ const Portfolio = () => {
     <div className="antialiased text-gray-600">
       <Meta title={AppConfig.title} description={AppConfig.description} />
       <Header />
-      <div className="flex flex-col items-center justify-center mb-20">
+      <div className="flex flex-col items-center justify-center mb-10">
         {loading && <InfinitySpin width="200" color="#EAB308" />}
         <pre className="error">{(error || '').toString()}</pre>
         {portfolio && (
@@ -285,18 +309,77 @@ const Portfolio = () => {
           </div>
         )}
 
-        {/* <div className="grid grid-cols-10 gap-8 mb-6 border-2 py-3">
-          <div>01</div>
-          <div>01</div>
-          <div>01</div>
-          <div>01</div>
-          <div>01</div>
-          <div>01</div>
-          <div>01</div>
-          <div>01</div>
-          <div>01</div>
-          <div>09</div>
-        </div> */}
+        {!loading && (
+          <div className="flex flex-row flex-wrap items-center justify-center w-3/4 sm:mb-0 mb-5">
+            <div className="relative p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-4xl font-bold">{netValue}</h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">最新净值</p>
+            </div>
+            <div className="relative block p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-4xl font-bold">
+                {/* 
+                // @ts-ignore */}
+                {(performance[2] * 100).toFixed(1)}%
+              </h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">
+                年复合收益率
+              </p>
+            </div>
+            <div className="relative block p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-4xl font-bold">{performance?.[3]}</h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">夏普比率</p>
+            </div>
+            <div className="relative block p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-4xl font-bold">
+                {/* 
+                // @ts-ignore */}
+                {(performance[0] * 100).toFixed(1)}%
+              </h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">当前回撤</p>
+            </div>
+            <div className="relative block p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-4xl font-bold">
+                {/* 
+                // @ts-ignore */}
+                {(performance[1] * 100).toFixed(1)}%
+              </h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">
+                历史最大回撤
+              </p>
+            </div>
+          </div>
+        )}
+
+        {!loading && (
+          <div className="hidden sm:flex flex-row flex-wrap items-center justify-center mb-10 w-3/4">
+            <div className="relative block p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-xl font-bold">{performance?.[4]}</h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">
+                总交易次数
+              </p>
+            </div>
+            <div className="relative block p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-xl font-bold">{performance?.[5]}</h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">盈利天数</p>
+            </div>
+            <div className="relative block p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-xl font-bold">{performance?.[6]}</h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">亏损天数</p>
+            </div>
+            <div className="relative block p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-xl font-bold">{performance?.[7]}</h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">运行天数</p>
+            </div>
+            <div className="relative block p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-xl font-bold">{firstFundingDate}</h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">建仓日期</p>
+            </div>
+            <div className="relative block p-8 m-2 border-t-4 border-yellow-500 rounded-sm shadow-xl">
+              <h5 className="text-xl font-bold">{latestTradeDate}</h5>
+              <p className="mt-4 text-lg font-medium text-gray-500">更新日期</p>
+            </div>
+          </div>
+        )}
 
         <div className="sm:w-9/12 w-11/12">
           {!loading && (
