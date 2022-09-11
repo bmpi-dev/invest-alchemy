@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import ReactECharts from 'echarts-for-react';
 import { useRouter } from 'next/router';
@@ -10,6 +10,8 @@ import { AppConfig } from '../utils/AppConfig';
 import { getPortfolioByName } from '../utils/PortfolioConfig';
 import { Footer } from './Footer';
 import { Header } from './Header';
+
+const pageLimit = 100;
 
 const Portfolio = () => {
   const router = useRouter();
@@ -26,10 +28,47 @@ const Portfolio = () => {
   const [transactions, setTransactions] = useState<string[]>();
   const [holdings, setHoldings] = useState<string[]>();
   const [fundings, setFundings] = useState<string[]>();
+  const sqlDB: any = useRef();
+  const [transactionsPageIndex, setTransactionsPageIndex] = useState<number>(1);
+  const [transactionsPageNum, setTransactionsPageNum] = useState<number>(0);
+  const [holdingsPageIndex, setHoldingsPageIndex] = useState<number>(1);
+  const [holdingsPageNum, setHoldingsPageNum] = useState<number>(0);
+  const [fundingsPageIndex, setFundingsPageIndex] = useState<number>(1);
+  const [fundingsPageNum, setFundingsPageNum] = useState<number>(0);
 
-  function exec(sqlDB: any, sql: string) {
-    const results = sqlDB.exec(sql);
+  function exec(sql: string) {
+    const results = sqlDB.current.exec(sql);
     return [].concat(...results[0].values);
+  }
+
+  function setTransactionsData(pageNum: number) {
+    // @ts-ignore
+    const portfolioTransactions: string[] = sqlDB.current.exec(
+      `select trade_date, trade_code, trade_name, trade_type, trade_amount, trade_price, trade_money from portfolio_transaction_ledger order by trade_date desc limit ${pageLimit} offset ${
+        pageLimit * pageNum - pageLimit
+      }`
+    )[0].values; // @ts-ignore
+    setTransactions(portfolioTransactions);
+  }
+
+  function setHoldingsData(pageNum: number) {
+    // @ts-ignore
+    const portfolioHoldings: string[] = sqlDB.current.exec(
+      `select trade_date, trade_code, trade_name, hold_amount, close_price, market_value from portfolio_holding_ledger order by trade_date desc limit ${pageLimit} offset ${
+        pageLimit * pageNum - pageLimit
+      }`
+    )[0].values; // @ts-ignore
+    setHoldings(portfolioHoldings);
+  }
+
+  function setFundingsData(pageNum: number) {
+    // @ts-ignore
+    const portfolioFundings: string[] = sqlDB.current.exec(
+      `select trade_date, fund_type, fund_amount from portfolio_funding_ledger order by trade_date desc limit ${pageLimit} offset ${
+        pageLimit * pageNum - pageLimit
+      }`
+    )[0].values; // @ts-ignore
+    setFundings(portfolioFundings);
   }
 
   useEffect(() => {
@@ -53,12 +92,12 @@ const Portfolio = () => {
         const dbURL = `https://www.i365.tech/invest-alchemy/data/portfolio/${traderName}/${portfolioName}/${portfolioName}.db`;
         const dataPromise = fetch(dbURL).then((res) => res.arrayBuffer());
         const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
-        const sqlDB = new SQL.Database(new Uint8Array(buf));
+        sqlDB.current = new SQL.Database(new Uint8Array(buf));
         // exec(
         //   sqlDB,
         //   'select portfolio_nv, zz500_nv, hs300_nv, cyb_nv, hsi_nv, spx_nv, ixic_nv, gdaxi_nv, n225_nv, ks11_nv, as51_nv, sensex_nv, base15_nv from portfolio_index_compare_ledger order by trade_date;'
         // );
-        const netValueResult = sqlDB.exec(
+        const netValueResult = sqlDB.current.exec(
           'select trade_date, net_value from portfolio_net_value_ledger order by trade_date desc limit 1'
         )[0];
         // @ts-ignore
@@ -66,30 +105,29 @@ const Portfolio = () => {
         // @ts-ignore
         setNetValue(netValueResult.values[0][1]);
         // @ts-ignore
-        const firstTradeDate = sqlDB.exec(
+        const firstTradeDate = sqlDB.current.exec(
           'select trade_date from portfolio_funding_ledger order by trade_date asc limit 1'
         )[0].values[0][0]; // @ts-ignore
         setFirstFundingDate(firstTradeDate);
         // @ts-ignore
-        const portfolioPerformance: string[] = sqlDB.exec(
+        const portfolioPerformance: string[] = sqlDB.current.exec(
           'select retracement_range, max_retracement_range, cagr, sharpe_ratio, total_trade_count, days_of_win, days_of_loss, run_days from portfolio_performance_ledger order by trade_date desc limit 1'
         )[0].values[0]; // @ts-ignore
         setPerformance(portfolioPerformance);
-        // @ts-ignore
-        const portfolioTransactions: string[] = sqlDB.exec(
-          'select trade_date, trade_code, trade_name, trade_type, trade_amount, trade_price, trade_money from portfolio_transaction_ledger order by trade_date desc'
-        )[0].values; // @ts-ignore
-        setTransactions(portfolioTransactions);
-        // @ts-ignore
-        const portfolioHoldings: string[] = sqlDB.exec(
-          'select trade_date, trade_code, trade_name, hold_amount, close_price, market_value from portfolio_holding_ledger order by trade_date desc limit 1000'
-        )[0].values; // @ts-ignore
-        setHoldings(portfolioHoldings);
-        // @ts-ignore
-        const portfolioFundings: string[] = sqlDB.exec(
-          'select trade_date, fund_type, fund_amount from portfolio_funding_ledger order by trade_date desc'
-        )[0].values; // @ts-ignore
-        setFundings(portfolioFundings);
+        const transactionsCount = exec(
+          'select count(*) from portfolio_transaction_ledger'
+        )[0]!;
+        setTransactionsPageNum(
+          Math.ceil(parseInt(transactionsCount, 10) / pageLimit)
+        );
+        const holdingsCount = exec(
+          'select count(*) from portfolio_holding_ledger'
+        )[0]!;
+        setHoldingsPageNum(Math.ceil(parseInt(holdingsCount, 10) / pageLimit));
+        const fundingsCount = exec(
+          'select count(*) from portfolio_funding_ledger'
+        )[0]!;
+        setFundingsPageNum(Math.ceil(parseInt(fundingsCount, 10) / pageLimit));
         const optionsData = {
           grid: {
             top: 100,
@@ -118,7 +156,6 @@ const Portfolio = () => {
           xAxis: {
             type: 'category',
             data: exec(
-              sqlDB,
               'select trade_date from portfolio_index_compare_ledger order by trade_date asc'
             ),
           },
@@ -131,7 +168,6 @@ const Portfolio = () => {
             {
               name: '组合净值',
               data: exec(
-                sqlDB,
                 'select portfolio_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -143,7 +179,6 @@ const Portfolio = () => {
             {
               name: '中证500',
               data: exec(
-                sqlDB,
                 'select zz500_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -156,7 +191,6 @@ const Portfolio = () => {
             {
               name: '沪深300',
               data: exec(
-                sqlDB,
                 'select hs300_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -169,7 +203,6 @@ const Portfolio = () => {
             {
               name: '创业板',
               data: exec(
-                sqlDB,
                 'select cyb_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -182,7 +215,6 @@ const Portfolio = () => {
             {
               name: '恒生指数',
               data: exec(
-                sqlDB,
                 'select hsi_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -195,7 +227,6 @@ const Portfolio = () => {
             {
               name: '标普500',
               data: exec(
-                sqlDB,
                 'select spx_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -208,7 +239,6 @@ const Portfolio = () => {
             {
               name: '纳斯达克',
               data: exec(
-                sqlDB,
                 'select ixic_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -221,7 +251,6 @@ const Portfolio = () => {
             {
               name: '德国DAX',
               data: exec(
-                sqlDB,
                 'select gdaxi_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -234,7 +263,6 @@ const Portfolio = () => {
             {
               name: '日经225',
               data: exec(
-                sqlDB,
                 'select n225_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -247,7 +275,6 @@ const Portfolio = () => {
             {
               name: '韩国综合',
               data: exec(
-                sqlDB,
                 'select ks11_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -260,7 +287,6 @@ const Portfolio = () => {
             {
               name: '澳大利亚标普200',
               data: exec(
-                sqlDB,
                 'select as51_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -273,7 +299,6 @@ const Portfolio = () => {
             {
               name: '印度孟买',
               data: exec(
-                sqlDB,
                 'select sensex_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -286,7 +311,6 @@ const Portfolio = () => {
             {
               name: '15%基准',
               data: exec(
-                sqlDB,
                 'select base15_nv from portfolio_index_compare_ledger order by trade_date asc'
               ),
               type: 'line',
@@ -402,7 +426,15 @@ const Portfolio = () => {
 
         <div className="sm:w-9/12 w-11/12">
           {!loading && (
-            <ReactECharts option={options} style={{ height: 800 }} />
+            <ReactECharts
+              option={options}
+              style={{ height: 800 }}
+              onChartReady={() => {
+                setTransactionsData(1);
+                setHoldingsData(1);
+                setFundingsData(1);
+              }}
+            />
           )}
         </div>
 
@@ -450,150 +482,333 @@ const Portfolio = () => {
             </nav>
           )}
           {currentTab === 'transaction' && (
-            <div className="overflow-x-auto mt-5">
-              <table className="min-w-full text-sm border border-gray-100 divide-y-2 divide-gray-200">
-                <thead>
-                  <tr className="divide-x divide-gray-100">
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      日期
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      代码
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      名称
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      类型
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      数量
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      价格
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      金额
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-gray-200">
-                  {transactions?.map((transaction, i) => (
-                    <tr className="divide-x divide-gray-100" key={i}>
-                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
-                        {transaction[0]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {transaction[1]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {transaction[2]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {transaction[3]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {transaction[4]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {transaction[5]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {transaction[6]}
-                      </td>
+            <div className="text-center">
+              <div className="overflow-x-auto mt-5">
+                <table className="min-w-full text-sm border border-gray-100 divide-y-2 divide-gray-200">
+                  <thead>
+                    <tr className="divide-x divide-gray-100">
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        日期
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        代码
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        名称
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        类型
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        数量
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        价格
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        金额
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-200">
+                    {transactions?.map((transaction, i) => (
+                      <tr className="divide-x divide-gray-100" key={i}>
+                        <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                          {transaction[0]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {transaction[1]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {transaction[2]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {transaction[3]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {transaction[4]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {transaction[5]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {transaction[6]}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="inline-flex items-center justify-center space-x-3 mt-3">
+                <button
+                  className="inline-flex items-center justify-center w-8 h-8 border border-gray-100 rounded"
+                  onClick={() => {
+                    if (transactionsPageIndex - 1 >= 1) {
+                      setTransactionsPageIndex(transactionsPageIndex - 1);
+                      setTransactionsData(transactionsPageIndex - 1);
+                    } else {
+                      setTransactionsPageIndex(1);
+                      setTransactionsData(1);
+                    }
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3 h-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                <p className="text-xs">
+                  {transactionsPageIndex}
+                  <span className="mx-0.25">/</span>
+                  {transactionsPageNum}
+                </p>
+
+                <button
+                  className="inline-flex items-center justify-center w-8 h-8 border border-gray-100 rounded"
+                  onClick={() => {
+                    if (transactionsPageIndex + 1 <= transactionsPageNum) {
+                      setTransactionsPageIndex(transactionsPageIndex + 1);
+                      setTransactionsData(transactionsPageIndex + 1);
+                    } else {
+                      setTransactionsPageIndex(transactionsPageNum);
+                      setTransactionsData(transactionsPageNum);
+                    }
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3 h-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
           {currentTab === 'holding' && (
-            <div className="overflow-x-auto mt-5">
-              <table className="min-w-full text-sm border border-gray-100 divide-y-2 divide-gray-200">
-                <thead>
-                  <tr className="divide-x divide-gray-100">
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      日期
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      代码
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      名称
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      持仓数量
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      收盘价
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      市值
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-gray-200">
-                  {holdings?.map((holding, i) => (
-                    <tr className="divide-x divide-gray-100" key={i}>
-                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
-                        {holding[0]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {holding[1]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {holding[2]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {holding[3]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {holding[4]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {holding[5]}
-                      </td>
+            <div className="text-center">
+              <div className="overflow-x-auto mt-5">
+                <table className="min-w-full text-sm border border-gray-100 divide-y-2 divide-gray-200">
+                  <thead>
+                    <tr className="divide-x divide-gray-100">
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        日期
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        代码
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        名称
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        持仓数量
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        收盘价
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        市值
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-200">
+                    {holdings?.map((holding, i) => (
+                      <tr className="divide-x divide-gray-100" key={i}>
+                        <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                          {holding[0]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {holding[1]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {holding[2]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {holding[3]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {holding[4]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {holding[5]}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="inline-flex items-center justify-center space-x-3 mt-3">
+                <button
+                  className="inline-flex items-center justify-center w-8 h-8 border border-gray-100 rounded"
+                  onClick={() => {
+                    if (holdingsPageIndex - 1 >= 1) {
+                      setHoldingsPageIndex(holdingsPageIndex - 1);
+                      setHoldingsData(holdingsPageIndex - 1);
+                    } else {
+                      setHoldingsPageIndex(1);
+                      setHoldingsData(1);
+                    }
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3 h-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                <p className="text-xs">
+                  {holdingsPageIndex}
+                  <span className="mx-0.25">/</span>
+                  {holdingsPageNum}
+                </p>
+
+                <button
+                  className="inline-flex items-center justify-center w-8 h-8 border border-gray-100 rounded"
+                  onClick={() => {
+                    if (holdingsPageIndex + 1 <= holdingsPageNum) {
+                      setHoldingsPageIndex(holdingsPageIndex + 1);
+                      setHoldingsData(holdingsPageIndex + 1);
+                    } else {
+                      setHoldingsPageIndex(holdingsPageNum);
+                      setHoldingsData(holdingsPageNum);
+                    }
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3 h-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
           {currentTab === 'funding' && (
-            <div className="overflow-x-auto mt-5">
-              <table className="min-w-full text-sm border border-gray-100 divide-y-2 divide-gray-200">
-                <thead>
-                  <tr className="divide-x divide-gray-100">
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      日期
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      类型
-                    </th>
-                    <th className="px-4 py-2 font-medium text-left text-gray-900 whitespace-nowrap">
-                      金额
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-gray-200">
-                  {fundings?.map((funding, i) => (
-                    <tr className="divide-x divide-gray-100" key={i}>
-                      <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
-                        {funding[0]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {funding[1]}
-                      </td>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
-                        {funding[2]}
-                      </td>
+            <div className="text-center">
+              <div className="overflow-x-auto mt-5">
+                <table className="min-w-full text-sm border border-gray-100 divide-y-2 divide-gray-200">
+                  <thead>
+                    <tr className="divide-x divide-gray-100">
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        日期
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        类型
+                      </th>
+                      <th className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        金额
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-200">
+                    {fundings?.map((funding, i) => (
+                      <tr className="divide-x divide-gray-100" key={i}>
+                        <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap">
+                          {funding[0]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {funding[1]}
+                        </td>
+                        <td className="px-4 py-2 text-gray-700 whitespace-nowrap">
+                          {funding[2]}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="inline-flex items-center justify-center space-x-3 mt-3">
+                <button
+                  className="inline-flex items-center justify-center w-8 h-8 border border-gray-100 rounded"
+                  onClick={() => {
+                    if (fundingsPageIndex - 1 >= 1) {
+                      setFundingsPageIndex(fundingsPageIndex - 1);
+                      setFundingsData(fundingsPageIndex - 1);
+                    } else {
+                      setFundingsPageIndex(1);
+                      setFundingsData(1);
+                    }
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3 h-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                <p className="text-xs">
+                  {fundingsPageIndex}
+                  <span className="mx-0.25">/</span>
+                  {fundingsPageNum}
+                </p>
+
+                <button
+                  className="inline-flex items-center justify-center w-8 h-8 border border-gray-100 rounded"
+                  onClick={() => {
+                    if (fundingsPageIndex + 1 <= fundingsPageNum) {
+                      setFundingsPageIndex(fundingsPageIndex + 1);
+                      setFundingsData(fundingsPageIndex + 1);
+                    } else {
+                      setFundingsPageIndex(fundingsPageNum);
+                      setFundingsData(fundingsPageNum);
+                    }
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3 h-3"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
         </div>

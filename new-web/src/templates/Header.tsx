@@ -18,7 +18,7 @@ const Header = () => {
       />
       <Section yPadding="py-6">
         <NavbarTwoColumns logo={<Logo xl />}>
-          <li>
+          <li className="text-sm sm:text-xl">
             <Link
               href="https://github.com/bmpi-dev/invest-alchemy"
               className="mr-2"
@@ -26,7 +26,7 @@ const Header = () => {
               <a>GitHub</a>
             </Link>
           </li>
-          <li>
+          <li className="text-sm sm:text-xl">
             <Link href="https://t.me/improve365">
               <a>Telegram</a>
             </Link>
