@@ -271,7 +271,7 @@ const Portfolio = () => {
     <div className="antialiased text-gray-600">
       <Meta title={AppConfig.title} description={AppConfig.description} />
       <Header />
-      <div className="flex flex-col items-center justify-center h-screen mb-20">
+      <div className="flex flex-col items-center justify-center mb-20">
         {loading && <InfinitySpin width="200" color="#EAB308" />}
         <pre className="error">{(error || '').toString()}</pre>
         {portfolio && (
