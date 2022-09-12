@@ -6,12 +6,15 @@ Invest Alchemy is a trade assistant for A share stock market. For more context, 
 
 - Feature
   - Strategy
-    - [x] Double MA
-    - [ ] Turtle
-    - [ ] Backtrace MA250
-    - [ ] Breakthrough Platform
-    - [ ] Keep Increasing
-    - [ ] Low Atr
+    - Trade strategies
+      - [x] Double MA
+      - [ ] Turtle
+      - [ ] Backtrace MA250
+      - [ ] Breakthrough Platform
+      - [ ] Keep Increasing
+      - [ ] Low Atr
+    - Trade backtesting
+      - [ ] Spike [backtrader](https://github.com/mementum/backtrader), maybe we can use it to do the strategy backtesting before we go to implement the strategy signal.
   - Market
     - [ ] Index Historical P/E Ratio
     - [x] Base database store baseline (10%) and popular indexs performance (000905/000300/399006/HSI/IXIC/INX)
