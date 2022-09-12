@@ -1,6 +1,6 @@
 # Invest Alchemy
 
-Invest Alchemy is a trade assistant for A share stock market.
+Invest Alchemy is a trade assistant for A share stock market. For more context, see this [post](https://www.bmpi.dev/money/invest-alchemy/).
 
 ## TODO
 
@@ -80,6 +80,7 @@ Invest Alchemy is a trade assistant for A share stock market.
 
 ## Post
 
+- [投资炼金术](https://www.bmpi.dev/money/invest-alchemy/)
 - [Serverless应用开发小记](https://www.bmpi.dev/dev/guide-to-serverless/)
 - [Adventures in Serverless Application Development](https://www.bmpi.dev/en/dev/guide-to-serverless/)
 
