@@ -63,6 +63,10 @@ python3 other/main_db_migrate.py
 ```bash
 python3 -m pwiz -e postgresql -u postgres -P -p 5432 -H $PG_DB_URL postgres # generate peewee model from postgres database
 ```
+### CloudFront
+
+1. Set cors origin to `*`
+2. Set cache control default TTL to 86400 seconds
 
 ### S3
 
