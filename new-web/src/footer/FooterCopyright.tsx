@@ -2,11 +2,14 @@ import { AppConfig } from '../utils/AppConfig';
 
 const FooterCopyright = () => (
   <div className="footer-copyright">
-    © Copyright {new Date().getFullYear()} {AppConfig.title}. Powered with{' '}
+    © Copyright {new Date().getFullYear()} {AppConfig.title} Powered with{' '}
     <span role="img" aria-label="Love">
       ♥
     </span>{' '}
-    by <a href="https://twitter.com/madawei2699">madawei</a>
+    <span>
+      by <a href="https://www.bmpi.dev">BMPI.dev</a>{' '}
+    </span>
+    @<a href="https://twitter.com/madawei2699">madawei</a>
     {/*
      * PLEASE READ THIS SECTION
      * We'll really appreciate if you could have a link to our website
