@@ -66,6 +66,7 @@ Invest Alchemy is a trade assistant for A share stock market. For more context, 
 - Note
   - Why the trade strategy may not good at trading stock?
     - Compare index, stocks have the liquidity problem and suspension risk. Liquidity can lead to a huge gap between simulated trading and actual trading results, suspension will result in inability to trade, producing results that are completely different from simulated trading.
+  - **About strategy backtesting overfitting**: Backtesting overfitting may be a killer in trade stragety, so we not pursue the profit maximization by overfitting, just using the simple trade strategy to overcome the market volatility.
 
 ### Portfolio
 
@@ -81,7 +82,6 @@ Invest Alchemy is a trade assistant for A share stock market. For more context, 
 - **About the no liquidity issues**: Because simulation trading cannot know the liquidity of the transaction of the day, such as A shares max up and down the restrictions caused the inability to deal, there is a certain deviation from the actual transaction, which is also the charm of the real deal, there is a certain amount of uncertainty brought about by the change.
 - **About dividends**: The robot trader will ignore the case of dividends on the holding position, because the calculation will be complicated. However, real user trader can manually record dividends as one transaction.
 - **About trade fees**: Because the ETF/LOF trade fees in A share market is very low, so robot trader just ignore the trade fees for simplified calculations.
-- **About strategy backtesting overfitting**: Backtesting overfitting may be a killer in trade stragety, so we not pursue the profit maximization by overfitting, just using the simple trade strategy to overcome the market volatility.
 
 ## Post
 
