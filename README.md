@@ -78,7 +78,7 @@ Invest Alchemy is a trade assistant for A share stock market. For more context, 
 ### Robot Trader
 
 - **About the slippage issue**: Since the underlying traded are daily level ETFs, the impact of slippage issues is minimal.
-- **No liquidity issues**: Because simulation trading cannot know the liquidity of the transaction of the day, such as A shares max up and down the restrictions caused the inability to deal, there is a certain deviation from the actual transaction, which is also the charm of the real deal, there is a certain amount of uncertainty brought about by the change.
+- **About the no liquidity issues**: Because simulation trading cannot know the liquidity of the transaction of the day, such as A shares max up and down the restrictions caused the inability to deal, there is a certain deviation from the actual transaction, which is also the charm of the real deal, there is a certain amount of uncertainty brought about by the change.
 - **About dividends**: The robot trader will ignore the case of dividends on the holding position, because the calculation will be complicated. However, real user trader can manually record dividends as one transaction.
 - **About trade fees**: Because the ETF/LOF trade fees in A share market is very low, so robot trader just ignore the trade fees for simplified calculations.
 - **About strategy backtesting overfitting**: Backtesting overfitting may be a killer in trade stragety, so we not pursue the profit maximization by overfitting, just using the simple trade strategy to overcome the market volatility.
