@@ -3,6 +3,10 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
+const withPWA = require('next-pwa')({
+  dest: 'public',
+});
+
 module.exports = withBundleAnalyzer({
   poweredByHeader: false,
   trailingSlash: true,
@@ -13,7 +17,7 @@ module.exports = withBundleAnalyzer({
   reactStrictMode: true,
 });
 
-module.exports = {
+module.exports = withPWA({
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // eslint-disable-next-line no-param-reassign
@@ -21,4 +25,4 @@ module.exports = {
     }
     return config;
   },
-};
+});
