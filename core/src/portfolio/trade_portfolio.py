@@ -540,7 +540,7 @@ class Portfolio:
                                                 hsi=hsi, \
                                                 hsi_nv=round(hsi / first_index_compare_db.hsi, 3), \
                                                 spx=spx, \
-                                                spx_nv=round(spx / first_index_compare_db.hsi, 3), \
+                                                spx_nv=round(spx / first_index_compare_db.spx, 3), \
                                                 ixic=ixic, \
                                                 ixic_nv=round(ixic / first_index_compare_db.ixic, 3), \
                                                 gdaxi=gdaxi, \
