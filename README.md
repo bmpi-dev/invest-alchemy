@@ -5,6 +5,12 @@ Invest Alchemy is a trade assistant for A share stock market. For more context, 
 ## TODO
 
 - Feature
+  - Data
+    - [x] [Tushare](https://tushare.pro/)
+    - [ ] [AKShare](https://akshare.xyz/)
+    - Other
+      - [理杏仁](https://www.lixinger.com/)
+      - [Yahoo](https://finance.yahoo.com/)
   - Strategy
     - Trade strategies
       - [x] Double MA
