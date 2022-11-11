@@ -1,5 +1,11 @@
 # Invest Alchemy API Service
 
+## Library
+
+```bash
+npm install -g serverless
+```
+
 ## How to start
 
 - deploy serverless lambda

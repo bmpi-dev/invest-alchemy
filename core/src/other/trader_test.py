@@ -13,11 +13,11 @@ TraderModel.insert(username='bmpi', trader_status=TraderStatus.NORMAL.value, tra
                                        preserve=[TraderModel.trader_status, TraderModel.trader_type, TraderModel.update_timestamp]).execute()
 
 PortfolioModel.insert(trader_username='bmpi', portfolio_name='被动收入', \
-                      portfolio_create_date='20180801', portfolio_trade_date='20220801', \
+                      portfolio_create_date='20180801', portfolio_trade_date='20221016', \
                       portfolio_type=PortfolioType.PUBLIC.value, portfolio_status=PortfolioStatus.CREATE.value) \
                       .on_conflict(conflict_target=[PortfolioModel.trader_username, PortfolioModel.portfolio_name], \
                                    preserve=[PortfolioModel.portfolio_trade_date, PortfolioModel.portfolio_type, \
                                     PortfolioModel.portfolio_status, PortfolioModel.update_timestamp]).execute()
 
 bmpi = UserTrader('bmpi')
-bmpi.update_portfolios('20220904')
+bmpi.update_portfolios('20221016')

@@ -42,6 +42,28 @@ change src code -> make build-docker -> make apply
 
 ## Note
 
+### Python Version
+
+`3.8`, recomment use `conda` to manage python version.
+
+```bash
+conda install -c anaconda python=3.8
+conda create -n py38 python=3.8
+conda activate py38
+```
+
+### Library (see Dockerfile)
+
+- install AWS CLI
+- install TA-Lib
+- install postgresql driver
+- `sudo apt-get install build-essential python-dev`
+- `pip install -r requirements.txt`
+
+### Terraform
+
+After install terraform, we need initialize first, go to `core/Infrastructure/tf-fargate` and execute `terraform init`, then input the name of the S3 bucket `invest-alchemy` and the path to the state file inside the bucket `invest-alchemy-core/terraform.tfstate`.
+
 ### Database
 
 #### Liquibase Database Migration
