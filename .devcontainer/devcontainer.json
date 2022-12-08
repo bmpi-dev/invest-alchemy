@@ -1,0 +1,5 @@
+{
+    "name": "Invest Alchemy Dev Container",
+    "dockerFile": "Dockerfile",
+    "context": ".."
+}
