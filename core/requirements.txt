@@ -1,4 +1,4 @@
-tushare==1.2.60
+tushare==1.2.89
 matplotlib==3.1.2
 numpy==1.23.1
 pandas==1.1.0
