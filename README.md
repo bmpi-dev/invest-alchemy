@@ -1,6 +1,6 @@
 # Invest Alchemy
 
-Invest Alchemy is a trade assistant for A share stock market. For more context, see this [post](https://www.bmpi.dev/money/invest-alchemy/).
+Invest Alchemy is a trading assistant focused on ETF portfolios. For more context, see this [post](https://www.bmpi.dev/money/invest-alchemy/).
 
 ## TODO
 
