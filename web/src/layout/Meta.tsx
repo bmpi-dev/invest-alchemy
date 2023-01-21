@@ -52,6 +52,23 @@ const Meta = (props: IMetaProps) => {
           data-website-id="456d3289-e627-409c-a9d7-a272cf789f0b"
           src="https://umami.bmpi.dev/umami.js"
         ></script>
+        {/* Global Site Tag (gtag.js) - Google Analytics 4 */}
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=G-HHDMNB9TJ5`}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-HHDMNB9TJ5', {
+              page_path: window.location.pathname,
+            });
+          `,
+          }}
+        />
       </Head>
       <NextSeo
         title={props.title}
