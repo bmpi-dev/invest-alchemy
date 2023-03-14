@@ -28,6 +28,7 @@ Invest Alchemy is a trading assistant focused on ETF portfolios. For more contex
     - [ ] ETF similarity calculation, can filter similar ETF
       - https://www.etf.com/etfanalytics/etf-comparison-tool
   - Market
+    - [ ] Support USA share ETF
     - [ ] Index Historical P/E Ratio
     - [x] Base database store baseline (10%) and popular indexs performance (000905/000300/399006/HSI/IXIC/INX)
   - Portfolio
@@ -52,6 +53,7 @@ Invest Alchemy is a trading assistant focused on ETF portfolios. For more contex
   - Notify
     - [x] Email
     - [x] Telegram bot/channel
+    - [ ] Slack bot/channel
     - [ ] Show different strategy signal (daily)
     - [ ] Show different trade robot portfolio performance report (weekly)
     - [ ] Can subscribe trade event of the special portfolio by email/rss
