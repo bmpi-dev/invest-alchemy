@@ -1,6 +1,6 @@
-from storage import upload_file, connect_db, disconnect_db
-from constants import TRADE_DATE_FORMAT_STR, OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM
-from notification import send_sns, send_tg_msg
+from storage import upload_file, connect_db, disconnect_db, get_premium_user_list
+from constants import TRADE_DATE_FORMAT_STR, OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM, ENV
+from notification import send_email_smtp
 from strategy.dma.dma_strategy import DMATradeStrategy
 from message import generate_message_to_file
 from db import DmaTradeSignalModel
@@ -41,7 +41,7 @@ def can_send_message():
     if error_count >= MAX_STRATEGY_SIGNAL_ERROR_COUNT:
         print("Too many errors happened during get trade targets' price by tushare, stop sending message...")
         return False
-    return False # TODO: - check when deploy to production
+    return ENV == 'prod'
 
 if __name__ == "__main__":
     startup()
@@ -69,12 +69,15 @@ if __name__ == "__main__":
         print('start upload output file to s3...')
         upload_file(LOCAL_BASE_DIR + OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR + OUTPUT_FILE)
         print('end upload output file to s3')
-        print('start send sns...')
-        send_sns(LOCAL_BASE_DIR + OUTPUT_FILE)
-        print('end send sns...')
-        print('start send tg msg...')
-        send_tg_msg(LOCAL_BASE_DIR + OUTPUT_FILE)
-        print('end send tg msg...')
+        print('start send email...')
+        with open(LOCAL_BASE_DIR + OUTPUT_FILE, 'r') as file:
+            message = file.read()
+            subject = '双均线策略交易信号: ' + TODAY_STR + ' - A股市场'
+            premium_user_list = get_premium_user_list()
+            for premium_user in premium_user_list:
+                print(f'send email to ${premium_user}')
+                send_email_smtp(premium_user, subject, message)
+        print('end send email')
 
     print('start process robot trader portfolio calculate...')
     robot_trader_portfolio_cal()

@@ -1,8 +1,9 @@
 import boto3
 import botocore
-from constants import AWS_REGION, LOCAL_BASE_DIR, S3_BUCKET_NAME, PG_DB_NAME, PG_DB_USER, PG_DB_PWD, PG_DB_URL, PG_PORT
+from constants import AWS_REGION, LOCAL_BASE_DIR, S3_BUCKET_NAME, S3_PREMIUM_USER_LIST, PG_DB_NAME, PG_DB_USER, PG_DB_PWD, PG_DB_URL, PG_PORT
 from os.path import exists
 from peewee import PostgresqlDatabase
+from datetime import datetime
 
 s3_client = boto3.client('s3', region_name=AWS_REGION)
 db = PostgresqlDatabase(PG_DB_NAME, user=PG_DB_USER, password=PG_DB_PWD, host=PG_DB_URL, port=PG_PORT)
@@ -27,6 +28,32 @@ def upload_file(file_name, bucket, object_name=None):
         print(e)
         return False
     return True
+
+def get_premium_user_list():
+    local_premium_user_list = LOCAL_BASE_DIR + 'premium-user-list.csv'
+    s3_client.download_file(S3_BUCKET_NAME, S3_PREMIUM_USER_LIST, local_premium_user_list)
+
+    with open(local_premium_user_list, 'r') as f:
+        lines = f.readlines()[1:]
+        user_list = []
+        for line in lines:
+            split_line = line.strip().split(',')
+            user = {
+                'email': split_line[0],
+                'premium_start': int(split_line[1]),
+                'premium_end': int(split_line[2])
+            }
+            user_list.append(user)
+
+    valid_users = []
+    now = int(datetime.now().timestamp())
+    for user in user_list:
+        if user['premium_end'] > now:
+            valid_users.append(user['email'])
+        else:
+            print('The user %s is not premium anymore.' % (user['email']))
+
+    return valid_users
 
 def connect_db():
     db.connect()

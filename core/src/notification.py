@@ -1,7 +1,12 @@
 import requests
 import boto3
 import json
-from constants import TODAY_STR, SNS_TOPIC, AWS_REGION, TG_SEND_MESSAGE_API, TG_CHATS
+from constants import *
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.utils import formataddr
 
 def send_sns(file_name):
     """Send message by sns
@@ -29,3 +34,17 @@ def send_tg_msg(file_name):
         r = requests.post(TG_SEND_MESSAGE_API, data=json.dumps(data), headers=headers)
         if r.status_code != 200:
             print('Error sending message to TG chat ' + chat_name + '(' + chat_id + ')' + ': ' + str(r.text))
+
+def send_email_smtp(to_address, subject, content):
+    message = MIMEMultipart()
+    message["From"] = formataddr((SMTP_MAIL_FROM_ALIAS, SMTP_MAIL_FROM))
+    message["To"] = to_address
+    message["Subject"] = subject
+    
+    message.attach(MIMEText(content, "plain"))
+
+    with smtplib.SMTP(SMTP_ADDRESS, SMTP_PORT) as smtp:
+        smtp.starttls()
+        smtp.login(SMTP_USERNAME, SMTP_PASSWORD)
+        smtp.send_message(message)
+        print(f'Email for {to_address} sent successfully!')
