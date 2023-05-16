@@ -33,7 +33,7 @@ data "aws_iam_policy_document" "ecs_service_assume_role_policy" {
 
 resource "aws_iam_role_policy_attachment" "ecs_service_role_policy_attachment" {
   role       = aws_iam_role.ecs_service_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaFullAccess" # https://gist.github.com/gene1wood/55b358748be3c314f956
+  policy_arn = "arn:aws:iam::aws:policy/AWSLambda_FullAccess" # https://gist.github.com/gene1wood/55b358748be3c314f956
 }
 
 ######################### Role used by the container enables the service to e.g. pull the image from ECR, spin up or deregister tasks etc
