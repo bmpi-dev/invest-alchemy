@@ -1,5 +1,5 @@
 from storage import upload_file, connect_db, disconnect_db, get_premium_user_list
-from constants import TRADE_DATE_FORMAT_STR, OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM, ENV
+from constants import TRADE_DATE_FORMAT_STR, OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM, APP_ENV
 from notification import send_email_smtp
 from strategy.dma.dma_strategy import DMATradeStrategy
 from message import generate_message_to_file
@@ -41,7 +41,7 @@ def can_send_message():
     if error_count >= MAX_STRATEGY_SIGNAL_ERROR_COUNT:
         print("Too many errors happened during get trade targets' price by tushare, stop sending message...")
         return False
-    return ENV == 'prod'
+    return APP_ENV == 'prod'
 
 if __name__ == "__main__":
     startup()

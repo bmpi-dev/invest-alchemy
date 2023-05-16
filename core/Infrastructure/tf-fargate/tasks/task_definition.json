@@ -21,7 +21,7 @@
         {"name": "TG_CHAT_IDS", "value": "${TG_CHAT_IDS}"}, 
         {"name": "PG_DB_URL", "value": "${PG_DB_URL}"}, 
         {"name": "PG_DB_PWD", "value": "${PG_DB_PWD}"}, 
-        {"name": "ENV", "value": "${ENV}"}, 
+        {"name": "APP_ENV", "value": "${APP_ENV}"}, 
         {"name": "SMTP_ADDRESS", "value": "${SMTP_ADDRESS}"}, 
         {"name": "SMTP_PORT", "value": "${SMTP_PORT}"}, 
         {"name": "SMTP_USERNAME", "value": "${SMTP_USERNAME}"}, 

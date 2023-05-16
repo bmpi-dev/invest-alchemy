@@ -95,8 +95,8 @@ variable "PG_DB_PWD" {
   type        = string
 }
 
-variable "ENV" {
-  description = "Environment"
+variable "APP_ENV" {
+  description = "App Environment"
   type        = string
 }
 

@@ -30,7 +30,7 @@ resource "aws_ecs_task_definition" "task_definition" {
     TG_CHAT_IDS         = "${var.TG_CHAT_IDS}"
     PG_DB_URL           = "${var.PG_DB_URL}"
     PG_DB_PWD           = "${var.PG_DB_PWD}"
-    ENV                 = "${var.ENV}"
+    APP_ENV             = "${var.APP_ENV}"
     SMTP_ADDRESS        = "${var.SMTP_ADDRESS}"
     SMTP_PORT           = "${var.SMTP_PORT}"
     SMTP_USERNAME       = "${var.SMTP_USERNAME}"
