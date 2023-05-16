@@ -30,6 +30,13 @@ resource "aws_ecs_task_definition" "task_definition" {
     TG_CHAT_IDS         = "${var.TG_CHAT_IDS}"
     PG_DB_URL           = "${var.PG_DB_URL}"
     PG_DB_PWD           = "${var.PG_DB_PWD}"
+    ENV                 = "${var.ENV}"
+    SMTP_ADDRESS        = "${var.SMTP_ADDRESS}"
+    SMTP_PORT           = "${var.SMTP_PORT}"
+    SMTP_USERNAME       = "${var.SMTP_USERNAME}"
+    SMTP_PASSWORD       = "${var.SMTP_PASSWORD}"
+    SMTP_MAIL_FROM      = "${var.SMTP_MAIL_FROM}"
+    SMTP_MAIL_FROM_ALIAS = "${var.SMTP_MAIL_FROM_ALIAS}"
   })
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"

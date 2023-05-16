@@ -94,3 +94,38 @@ variable "PG_DB_PWD" {
   description = "Main Database Password"
   type        = string
 }
+
+variable "ENV" {
+  description = "Environment"
+  type        = string
+}
+
+variable "SMTP_ADDRESS" {
+  description = "SMTP address"
+  type        = string
+}
+
+variable "SMTP_PORT" {
+  description = "SMTP port"
+  type        = string
+}
+
+variable "SMTP_USERNAME" {
+  description = "SMTP username"
+  type        = string
+}
+
+variable "SMTP_PASSWORD" {
+  description = "SMTP password"
+  type        = string
+}
+
+variable "SMTP_MAIL_FROM" {
+  description = "SMTP mail from"
+  type        = string
+}
+
+variable "SMTP_MAIL_FROM_ALIAS" {
+  description = "SMTP mail from alias"
+  type        = string
+}
