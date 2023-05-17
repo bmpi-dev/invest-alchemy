@@ -23,7 +23,7 @@ def upload_file(file_name, bucket, object_name=None):
 
     # Upload the file
     try:
-        _ = s3_client.upload_file(file_name, bucket, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'text/plain; charset=utf-8'})
+        _ = s3_client.upload_file(file_name, bucket, object_name, ExtraArgs={'ContentType': 'text/plain; charset=utf-8'})
     except botocore.exceptions.ClientError as e:
         print(e)
         return False
