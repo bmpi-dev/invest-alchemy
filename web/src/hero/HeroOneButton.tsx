@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 
 type IHeroOneButtonProps = {
   title: ReactNode;
