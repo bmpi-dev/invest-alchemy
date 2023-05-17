@@ -10,7 +10,21 @@ import { Logo } from './Logo';
 const Hero = () => (
   <Background color="bg-gray-100">
     <Section yPadding="py-6">
-      <NavbarTwoColumns logo={<Logo xl />}></NavbarTwoColumns>
+      <NavbarTwoColumns logo={<Logo xl />}>
+        <li className="text-sm sm:text-xl">
+          <Link href="mailto:me@i365.tech" className="mr-2">
+            <a>付费订阅</a>
+          </Link>
+        </li>
+        <li className="text-sm sm:text-xl">
+          <Link
+            href="https://www.bmpi.dev/categories/被动收入投资组合/"
+            className="mr-2"
+          >
+            <a>组合报告</a>
+          </Link>
+        </li>
+      </NavbarTwoColumns>
     </Section>
 
     <Section yPadding="pt-20 pb-32">

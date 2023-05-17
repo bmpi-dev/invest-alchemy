@@ -18,12 +18,10 @@ const HeroOneButton = (props: IHeroOneButtonProps) => {
         <div className="p-8 md:p-12 lg:px-16 lg:py-24">
           <div className="max-w-lg mx-auto text-center">
             <h2 className="text-2xl font-bold text-gray-500 md:text-3xl">
-              交易信号邮件提醒付费订阅
+              交易信号邮件提醒
             </h2>
 
-            <p className="text-red-500 sm:mt-4">
-              付费请发邮件至 me@i365.tech 来信咨询
-            </p>
+            <p className="text-red-500 sm:mt-4">付费请发邮件咨询</p>
 
             <p className="text-gray-500 sm:mt-2">
               目前仅支持双均线策略信号的订阅，未来会支持多种交易策略信号
