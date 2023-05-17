@@ -10,8 +10,7 @@ import { Logo } from './Logo';
 const Hero = () => (
   <Background color="bg-gray-100">
     <Section yPadding="py-6">
-      <NavbarTwoColumns logo={<Logo xl />}>
-      </NavbarTwoColumns>
+      <NavbarTwoColumns logo={<Logo xl />}></NavbarTwoColumns>
     </Section>
 
     <Section yPadding="pt-20 pb-32">
