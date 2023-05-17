@@ -36,6 +36,11 @@ resource "aws_iam_role_policy_attachment" "ecs_service_role_policy_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/AWSLambda_FullAccess" # https://gist.github.com/gene1wood/55b358748be3c314f956
 }
 
+resource "aws_iam_role_policy_attachment" "s3_access" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role       = aws_iam_role.ecs_service_role.name
+}
+
 ######################### Role used by the container enables the service to e.g. pull the image from ECR, spin up or deregister tasks etc
 
 resource "aws_iam_role" "ecs_task_execution_role" {

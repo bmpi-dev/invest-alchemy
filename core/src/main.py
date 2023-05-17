@@ -75,7 +75,6 @@ if __name__ == "__main__":
             subject = '双均线策略交易信号: ' + TODAY_STR + ' - A股市场'
             premium_user_list = get_premium_user_list()
             for premium_user in premium_user_list:
-                print(f'send email to ${premium_user}')
                 send_email_smtp(premium_user, subject, message)
         print('end send email')
 
