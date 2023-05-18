@@ -3,7 +3,6 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-from notification import send_email_mailgun, send_email_smtp
+from notification import send_emails_smtp
 
-# send_email_mailgun('test@test.com', "Hello world", "This is a test email")
-send_email_smtp('test@test.com', "测试测试", "你好👋")
+send_emails_smtp(['t@t.com'], "hello", "Thanks very much, 非常感谢！")

@@ -1,6 +1,7 @@
 import requests
 import boto3
 import json
+import time
 from constants import *
 
 import smtplib
@@ -48,3 +49,17 @@ def send_email_smtp(to_address, subject, content):
         smtp.login(SMTP_USERNAME, SMTP_PASSWORD)
         smtp.send_message(message)
         print(f'Email for {to_address} sent successfully!')
+
+def send_emails_smtp(to_address_list, subject, content):
+    to_address_list = list(set(to_address_list))
+
+    try:
+        sent_count = 0
+        for to_address in to_address_list:
+            send_email_smtp(to_address, subject, content)
+            sent_count += 1
+            if sent_count % SMTP_MAIL_RATE_LIMIT == 0:
+                 time.sleep(1)
+        print(f'{len(to_address_list)} emails sent successfully!')
+    except Exception as e:
+        print(e)

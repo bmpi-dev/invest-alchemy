@@ -1,6 +1,6 @@
 from storage import upload_file, connect_db, disconnect_db, get_premium_user_list
 from constants import TRADE_DATE_FORMAT_STR, OUTPUT_FILE, S3_BUCKET_NAME, S3_DOUBLE_MA_BASE_DIR, TODAY_STR, MAX_STRATEGY_SIGNAL_ERROR_COUNT, LOCAL_BASE_DIR, STRATEGY_DMA_SHORT_TERM, STRATEGY_DMA_LONG_TERM, APP_ENV
-from notification import send_email_smtp
+from notification import send_emails_smtp
 from strategy.dma.dma_strategy import DMATradeStrategy
 from message import generate_message_to_file
 from db import DmaTradeSignalModel
@@ -74,9 +74,7 @@ if __name__ == "__main__":
             message = file.read()
             subject = '双均线策略交易信号: ' + TODAY_STR + ' - A股市场'
             premium_user_list = get_premium_user_list()
-            for premium_user in premium_user_list:
-                send_email_smtp(premium_user, subject, message)
-        print('end send email')
+            send_emails_smtp(premium_user_list, subject, message)
 
     print('start process robot trader portfolio calculate...')
     robot_trader_portfolio_cal()
