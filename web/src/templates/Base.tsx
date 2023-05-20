@@ -6,7 +6,7 @@ import { Hero } from './Hero';
 import { Portfolios } from './Portfolios';
 
 const link = {
-  href: 'https://www.bmpi.dev/money/road_to_trading/',
+  href: 'https://www.bmpi.dev/money/invest-alchemy/',
   text: '👉进一步了解',
 };
 

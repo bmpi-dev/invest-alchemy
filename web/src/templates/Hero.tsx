@@ -17,10 +17,7 @@ const Hero = () => (
           </Link>
         </li>
         <li className="text-sm sm:text-xl">
-          <Link
-            href="https://www.bmpi.dev/categories/被动收入投资组合/"
-            className="mr-2"
-          >
+          <Link href="https://www.bmpi.dev/money/" className="mr-2">
             <a>组合报告</a>
           </Link>
         </li>

@@ -21,7 +21,9 @@ const HeroOneButton = (props: IHeroOneButtonProps) => {
               交易信号邮件提醒
             </h2>
 
-            <p className="text-red-500 sm:mt-4">付费请发邮件咨询</p>
+            <p className="text-red-500 sm:mt-4">
+              付费请发邮件至 me@i365.tech 咨询
+            </p>
 
             <p className="text-gray-500 sm:mt-2">
               目前仅支持双均线策略信号的订阅，未来会支持多种交易策略信号
