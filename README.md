@@ -2,8 +2,6 @@
 
 Invest Alchemy is a trading assistant focused on ETF portfolios. For more context, see this [post](https://www.bmpi.dev/money/invest-alchemy/).
 
-> Anything you want to discuss, you can join me on this [slack channel](https://slack-redirect.i365.tech/).
-
 ## TODO
 
 - Feature
