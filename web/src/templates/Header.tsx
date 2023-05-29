@@ -19,16 +19,13 @@ const Header = () => {
       <Section yPadding="py-6">
         <NavbarTwoColumns logo={<Logo xl />}>
           <li className="text-sm sm:text-xl">
-            <Link
-              href="https://github.com/bmpi-dev/invest-alchemy"
-              className="mr-2"
-            >
-              <a>GitHub</a>
+            <Link href="mailto:me@i365.tech" className="mr-2">
+              <a>付费订阅</a>
             </Link>
           </li>
           <li className="text-sm sm:text-xl">
-            <Link href="https://t.me/improve365">
-              <a>Telegram</a>
+            <Link href="https://www.bmpi.dev/money/" className="mr-2">
+              <a>组合报告</a>
             </Link>
           </li>
         </NavbarTwoColumns>
